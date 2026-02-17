@@ -1,0 +1,2120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FarmPulse — AI Farm Co-Pilot</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --soil: #1a1208;
+      --earth: #2d1f0a;
+      --bark: #3d2b10;
+      --clay: #7a4f2a;
+      --wheat: #d4a84b;
+      --sun: #f5c842;
+      --lime: #7ecb35;
+      --leaf: #4a9b2f;
+      --forest: #2d6b1a;
+      --sky: #5bb8e0;
+      --mist: #e8f4e8;
+      --cream: #faf6ed;
+      --text: #1a1208;
+      --textmid: #5a4a2a;
+      --card: rgba(255, 255, 255, 0.85);
+      --glow: rgba(126, 203, 53, 0.15);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--soil);
+      color: var(--cream);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* === BACKGROUND === */
+    .bg-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 10% 20%, rgba(45, 107, 26, 0.25) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 90% 80%, rgba(122, 79, 42, 0.3) 0%, transparent 60%),
+        radial-gradient(ellipse 100% 100% at 50% 50%, #1a1208 0%, #0d0a04 100%);
+    }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-image: linear-gradient(rgba(126, 203, 53, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(126, 203, 53, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* === NAV === */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 40px;
+      background: rgba(26, 18, 8, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(126, 203, 53, 0.15);
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--lime);
+      letter-spacing: -0.5px;
+    }
+
+    .logo span {
+      color: var(--wheat);
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .nav-tab {
+      padding: 8px 18px;
+      border-radius: 9px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.5);
+      transition: all 0.25s ease;
+      white-space: nowrap;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .nav-tab.active {
+      background: var(--lime);
+      color: var(--soil);
+      font-weight: 700;
+    }
+
+    .nav-tab:hover:not(.active) {
+      color: var(--lime);
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(126, 203, 53, 0.1);
+      border: 1px solid rgba(126, 203, 53, 0.25);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 0.78rem;
+      color: var(--lime);
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--lime);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(126, 203, 53, 0.4);
+      }
+
+      50% {
+        opacity: 0.7;
+        transform: scale(1.1);
+        box-shadow: 0 0 0 5px rgba(126, 203, 53, 0);
+      }
+    }
+
+    /* === MAIN === */
+    main {
+      position: relative;
+      z-index: 1;
+      padding: 100px 40px 60px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* === HERO === */
+    .hero {
+      text-align: center;
+      padding: 60px 0 50px;
+      animation: fadeUp 0.8s ease both;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(126, 203, 53, 0.1);
+      border: 1px solid rgba(126, 203, 53, 0.3);
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-size: 0.78rem;
+      color: var(--lime);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      font-weight: 800;
+      line-height: 1.05;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #ffffff 0%, var(--lime) 50%, var(--wheat) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 1.15rem;
+      color: rgba(255, 255, 255, 0.55);
+      max-width: 560px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+    }
+
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      margin-bottom: 50px;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--lime);
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: rgba(255, 255, 255, 0.4);
+      margin-top: 2px;
+    }
+
+    /* === SECTION === */
+    .section {
+      display: none;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(24px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 30px;
+    }
+
+    .section-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--lime), var(--leaf));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      box-shadow: 0 8px 24px rgba(126, 203, 53, 0.3);
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+
+    .section-sub {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.4);
+      margin-top: 2px;
+    }
+
+    /* === CARDS === */
+    .card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 28px;
+      backdrop-filter: blur(10px);
+      transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    }
+
+    .card:hover {
+      border-color: rgba(126, 203, 53, 0.25);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(126, 203, 53, 0.08);
+    }
+
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .card-sub {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.35);
+      margin-bottom: 20px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    /* === UPLOAD AREA === */
+    .upload-zone {
+      border: 2px dashed rgba(126, 203, 53, 0.3);
+      border-radius: 16px;
+      padding: 50px 30px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: rgba(126, 203, 53, 0.03);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .upload-zone:hover,
+    .upload-zone.dragging {
+      border-color: var(--lime);
+      background: rgba(126, 203, 53, 0.07);
+    }
+
+    .upload-zone input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .upload-icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+    }
+
+    .upload-text {
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .upload-text strong {
+      color: var(--lime);
+    }
+
+    #preview-img {
+      width: 100%;
+      max-height: 240px;
+      object-fit: cover;
+      border-radius: 12px;
+      display: none;
+      margin-bottom: 16px;
+    }
+
+    /* === BUTTONS === */
+    .btn {
+      padding: 12px 28px;
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.25s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--lime), #5fa825);
+      color: var(--soil);
+      box-shadow: 0 4px 20px rgba(126, 203, 53, 0.35);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(126, 203, 53, 0.5);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.07);
+      color: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    /* === RESULT BOX === */
+    .result-box {
+      background: rgba(126, 203, 53, 0.06);
+      border: 1px solid rgba(126, 203, 53, 0.2);
+      border-radius: 16px;
+      padding: 24px;
+      margin-top: 20px;
+      display: none;
+    }
+
+    .result-box.show {
+      display: block;
+      animation: fadeUp 0.4s ease;
+    }
+
+    .result-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--lime);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .result-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .result-body {
+      font-size: 0.88rem;
+      color: rgba(255, 255, 255, 0.65);
+      line-height: 1.7;
+    }
+
+    .severity-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .sev-high {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.25);
+    }
+
+    .sev-mid {
+      background: rgba(245, 193, 66, 0.15);
+      color: var(--wheat);
+      border: 1px solid rgba(245, 193, 66, 0.25);
+    }
+
+    .sev-low {
+      background: rgba(126, 203, 53, 0.15);
+      color: var(--lime);
+      border: 1px solid rgba(126, 203, 53, 0.25);
+    }
+
+    /* === LOADER === */
+    .loader {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px;
+      gap: 14px;
+    }
+
+    .loader.show {
+      display: flex;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(126, 203, 53, 0.15);
+      border-top-color: var(--lime);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .loader-text {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* === CROP RECOMMENDATION === */
+    .input-group {
+      margin-bottom: 16px;
+    }
+
+    .input-label {
+      display: block;
+      font-size: 0.78rem;
+      color: rgba(255, 255, 255, 0.45);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-weight: 500;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      transition: border-color 0.25s;
+      outline: none;
+    }
+
+    .input-field:focus {
+      border-color: rgba(126, 203, 53, 0.5);
+    }
+
+    .input-field option {
+      background: #1a1208;
+    }
+
+    /* === CROP CARDS === */
+    .crop-result-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .crop-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 18px;
+      text-align: center;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .crop-card:hover {
+      border-color: var(--lime);
+      transform: translateY(-3px);
+    }
+
+    .crop-card.best {
+      border-color: rgba(126, 203, 53, 0.5);
+      background: rgba(126, 203, 53, 0.07);
+    }
+
+    .crop-emoji {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    .crop-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .crop-score {
+      font-size: 0.75rem;
+      color: var(--lime);
+      margin-top: 4px;
+    }
+
+    .crop-reason {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.4);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    /* === MARKET PRICE === */
+    .price-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .price-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 20px;
+      transition: all 0.3s;
+    }
+
+    .price-card:hover {
+      border-color: rgba(126, 203, 53, 0.3);
+    }
+
+    .price-crop {
+      font-size: 0.78rem;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .price-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin: 6px 0;
+      color: white;
+    }
+
+    .price-change {
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .price-up {
+      color: var(--lime);
+    }
+
+    .price-down {
+      color: #f87171;
+    }
+
+    .sell-signal {
+      margin-top: 10px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .signal-buy {
+      background: rgba(126, 203, 53, 0.15);
+      color: var(--lime);
+    }
+
+    .signal-hold {
+      background: rgba(245, 193, 66, 0.15);
+      color: var(--wheat);
+    }
+
+    .signal-sell {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+    }
+
+    /* mini chart */
+    .mini-chart {
+      height: 40px;
+      margin-top: 10px;
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+    }
+
+    .bar {
+      flex: 1;
+      background: rgba(126, 203, 53, 0.2);
+      border-radius: 3px 3px 0 0;
+      transition: height 0.5s ease;
+    }
+
+    .bar.active {
+      background: var(--lime);
+    }
+
+    /* === SOIL HEALTH === */
+    .soil-meter {
+      margin-bottom: 16px;
+    }
+
+    .meter-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .meter-name {
+      font-size: 0.82rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .meter-val {
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .meter-bar {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .meter-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--lime), var(--sun));
+      transition: width 1.2s ease;
+    }
+
+    .fert-rec {
+      background: rgba(212, 168, 75, 0.08);
+      border: 1px solid rgba(212, 168, 75, 0.2);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 14px;
+    }
+
+    .fert-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--wheat);
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .fert-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 0.85rem;
+    }
+
+    .fert-item:last-child {
+      border: none;
+    }
+
+    .fert-amount {
+      color: var(--wheat);
+      font-weight: 600;
+    }
+
+    /* === AI CHATBOT === */
+    .chat-container {
+      height: 340px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 8px 4px;
+      margin-bottom: 16px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(126, 203, 53, 0.2) transparent;
+    }
+
+    .chat-msg {
+      display: flex;
+      gap: 10px;
+      animation: fadeUp 0.3s ease;
+    }
+
+    .chat-msg.user {
+      flex-direction: row-reverse;
+    }
+
+    .msg-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .msg-avatar.ai {
+      background: rgba(126, 203, 53, 0.15);
+      border-color: rgba(126, 203, 53, 0.25);
+    }
+
+    .msg-bubble {
+      max-width: 78%;
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-size: 0.87rem;
+      line-height: 1.6;
+    }
+
+    .chat-msg.ai .msg-bubble {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.8);
+      border-radius: 4px 14px 14px 14px;
+    }
+
+    .chat-msg.user .msg-bubble {
+      background: rgba(126, 203, 53, 0.15);
+      border: 1px solid rgba(126, 203, 53, 0.25);
+      color: rgba(255, 255, 255, 0.9);
+      border-radius: 14px 4px 14px 14px;
+    }
+
+    .chat-input-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.25s;
+    }
+
+    .chat-input:focus {
+      border-color: rgba(126, 203, 53, 0.5);
+    }
+
+    .quick-questions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .quick-q {
+      padding: 6px 13px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.78rem;
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .quick-q:hover {
+      border-color: var(--lime);
+      color: var(--lime);
+    }
+
+    /* === DASHBOARD === */
+    .dash-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 22px 20px;
+      transition: all 0.3s;
+    }
+
+    .kpi-card:hover {
+      border-color: rgba(126, 203, 53, 0.25);
+    }
+
+    .kpi-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255, 255, 255, 0.35);
+      margin-bottom: 8px;
+    }
+
+    .kpi-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.9rem;
+      font-weight: 800;
+    }
+
+    .kpi-value.green {
+      color: var(--lime);
+    }
+
+    .kpi-value.yellow {
+      color: var(--wheat);
+    }
+
+    .kpi-value.red {
+      color: #f87171;
+    }
+
+    .kpi-change {
+      font-size: 0.75rem;
+      margin-top: 4px;
+    }
+
+    .kpi-change.up {
+      color: var(--lime);
+    }
+
+    .kpi-change.down {
+      color: #f87171;
+    }
+
+    /* weather strip */
+    .weather-strip {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .weather-day {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .weather-day.today {
+      border-color: rgba(91, 184, 224, 0.4);
+      background: rgba(91, 184, 224, 0.07);
+    }
+
+    .w-day {
+      font-size: 0.72rem;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .w-icon {
+      font-size: 1.8rem;
+      margin: 6px 0;
+    }
+
+    .w-temp {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .w-cond {
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.35);
+      margin-top: 2px;
+    }
+
+    /* alert cards */
+    .alert-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .alert-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border-left: 3px solid transparent;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    .alert-item.warn {
+      border-color: var(--wheat);
+      background: rgba(245, 193, 66, 0.05);
+    }
+
+    .alert-item.info {
+      border-color: var(--sky);
+      background: rgba(91, 184, 224, 0.05);
+    }
+
+    .alert-item.danger {
+      border-color: #f87171;
+      background: rgba(239, 68, 68, 0.05);
+    }
+
+    .alert-item.success {
+      border-color: var(--lime);
+      background: rgba(126, 203, 53, 0.05);
+    }
+
+    .alert-icon {
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    /* === MISC === */
+    .divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.07);
+      margin: 24px 0;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: rgba(126, 203, 53, 0.12);
+      color: var(--lime);
+      border: 1px solid rgba(126, 203, 53, 0.2);
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+
+    @media(max-width: 900px) {
+      nav {
+        padding: 14px 20px;
+      }
+
+      .nav-tabs {
+        display: none;
+      }
+
+      main {
+        padding: 90px 20px 40px;
+      }
+
+      .grid-2,
+      .grid-3,
+      .dash-kpi-grid,
+      .crop-result-grid,
+      .price-grid,
+      .weather-strip {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media(max-width: 600px) {
+
+      .grid-2,
+      .grid-3,
+      .dash-kpi-grid,
+      .crop-result-grid,
+      .price-grid,
+      .weather-strip {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-layer"></div>
+  <div class="bg-grid"></div>
+
+  <!-- NAV -->
+  <nav>
+    <div class="logo">Farm<span>Pulse</span></div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showSection('dashboard')">🏠 Dashboard</button>
+      <button class="nav-tab" onclick="showSection('disease')">🔬 Disease AI</button>
+      <button class="nav-tab" onclick="showSection('crops')">🌱 Crop Advisor</button>
+      <button class="nav-tab" onclick="showSection('market')">📈 Market</button>
+      <button class="nav-tab" onclick="showSection('soil')">🪱 Soil Health</button>
+      <button class="nav-tab" onclick="showSection('doctor')">🤖 AI Doctor</button>
+    </div>
+    <div class="status-pill">
+      <div class="pulse-dot"></div>
+      AI Live
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ==================== DASHBOARD ==================== -->
+    <section id="dashboard" class="section active">
+      <div class="hero">
+        <div class="hero-badge">🌾 AI-Powered Farm Intelligence</div>
+        <h1>Your Farm's Brain,<br />In Your Pocket</h1>
+        <p>Real-time AI advisory across crop health, soil, markets, and weather — built for the modern farmer.</p>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <div class="stat-num">100</div>
+            <div class="stat-label">Acres Monitored</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">5</div>
+            <div class="stat-label">AI Features</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">3</div>
+            <div class="stat-label">Active Crops</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">24/7</div>
+            <div class="stat-label">Live Monitoring</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="dash-kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Projected Revenue</div>
+          <div class="kpi-value green">$48,200</div>
+          <div class="kpi-change up">↑ 12% vs last season</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Current Profit/Acre</div>
+          <div class="kpi-value yellow">$42</div>
+          <div class="kpi-change up">↑ After AI optimization</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Water Saved This Week</div>
+          <div class="kpi-value green">18,400 L</div>
+          <div class="kpi-change up">↑ Smart irrigation active</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Pest Risk Level</div>
+          <div class="kpi-value yellow">Medium</div>
+          <div class="kpi-change down">⚠ Monitor wheat field</div>
+        </div>
+      </div>
+
+      <!-- Weather -->
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-title">🌤️ 5-Day Weather Forecast</div>
+        <div class="card-sub">Smart irrigation and harvest timing based on forecast</div>
+        <div class="divider"></div>
+        <div class="weather-strip">
+          <div class="weather-day today">
+            <div class="w-day">Today</div>
+            <div class="w-icon">⛅</div>
+            <div class="w-temp">28°C</div>
+            <div class="w-cond">Partly Cloudy</div>
+          </div>
+          <div class="weather-day">
+            <div class="w-day">Wed</div>
+            <div class="w-icon">🌧️</div>
+            <div class="w-temp">23°C</div>
+            <div class="w-cond">Heavy Rain</div>
+          </div>
+          <div class="weather-day">
+            <div class="w-day">Thu</div>
+            <div class="w-icon">🌦️</div>
+            <div class="w-temp">25°C</div>
+            <div class="w-cond">Light Rain</div>
+          </div>
+          <div class="weather-day">
+            <div class="w-day">Fri</div>
+            <div class="w-icon">☀️</div>
+            <div class="w-temp">31°C</div>
+            <div class="w-cond">Sunny</div>
+          </div>
+          <div class="weather-day">
+            <div class="w-day">Sat</div>
+            <div class="w-icon">🌤️</div>
+            <div class="w-temp">29°C</div>
+            <div class="w-cond">Partly Cloudy</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alerts + Quick Nav -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">🔔 Smart Alerts</div>
+          <div class="card-sub">AI-generated action items for your farm</div>
+          <div class="divider"></div>
+          <div class="alert-list">
+            <div class="alert-item danger">
+              <span class="alert-icon">🚨</span>
+              <div><strong>Early blight detected</strong> in Tomato field (Block C). Apply copper fungicide within 48
+                hours.</div>
+            </div>
+            <div class="alert-item warn">
+              <span class="alert-icon">⚠️</span>
+              <div><strong>Skip irrigation today</strong> — heavy rain forecast tomorrow. Save ~₹2,400 in pump costs.
+              </div>
+            </div>
+            <div class="alert-item success">
+              <span class="alert-icon">📈</span>
+              <div><strong>Soybean price up 11%</strong> this week. Consider selling 30% of stock now.</div>
+            </div>
+            <div class="alert-item info">
+              <span class="alert-icon">💧</span>
+              <div><strong>Soil moisture low</strong> in Field A (Corn). Schedule drip irrigation for Thursday.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🗺️ Quick Access</div>
+          <div class="card-sub">Jump to any AI feature</div>
+          <div class="divider"></div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <button class="btn btn-secondary" style="width:100%;justify-content:flex-start;"
+              onclick="showSection('disease')">🔬 &nbsp; Diagnose Crop Disease from Photo</button>
+            <button class="btn btn-secondary" style="width:100%;justify-content:flex-start;"
+              onclick="showSection('crops')">🌱 &nbsp; Get Best Crop Recommendation</button>
+            <button class="btn btn-secondary" style="width:100%;justify-content:flex-start;"
+              onclick="showSection('market')">📈 &nbsp; Check Live Market Prices</button>
+            <button class="btn btn-secondary" style="width:100%;justify-content:flex-start;"
+              onclick="showSection('soil')">🪱 &nbsp; Analyze Soil & Get Fertilizer Plan</button>
+            <button class="btn btn-secondary" style="width:100%;justify-content:flex-start;"
+              onclick="showSection('doctor')">🤖 &nbsp; Chat with AI Crop Doctor</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== DISEASE DETECTION ==================== -->
+    <section id="disease" class="section">
+      <div class="section-header">
+        <div class="section-icon">🔬</div>
+        <div>
+          <div class="section-title">Pest & Disease Detection</div>
+          <div class="section-sub">Upload a photo → AI identifies disease + gives treatment plan in seconds</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">📸 Upload Crop Photo</div>
+          <div class="card-sub">Take a close-up of affected leaves, stems, or fruits</div>
+          <img id="preview-img" src="" alt="Preview" />
+          <div class="upload-zone" id="upload-zone">
+            <input type="file" accept="image/*" onchange="handleImageUpload(event)" />
+            <div class="upload-icon">🌿</div>
+            <div class="upload-text"><strong>Click or drag</strong> to upload crop photo</div>
+            <div style="font-size:0.75rem;color:rgba(255,255,255,0.3);margin-top:8px;">JPG, PNG supported</div>
+          </div>
+
+          <div style="margin-top:16px;">
+            <label class="input-label">Select Crop Type (optional)</label>
+            <select class="input-field" id="crop-type-select">
+              <option value="">Auto-detect</option>
+              <option value="corn">🌽 Corn / Maize</option>
+              <option value="wheat">🌾 Wheat</option>
+              <option value="soybean">🫘 Soybean</option>
+              <option value="tomato">🍅 Tomato</option>
+              <option value="rice">🌾 Rice</option>
+              <option value="potato">🥔 Potato</option>
+              <option value="cotton">🌸 Cotton</option>
+            </select>
+          </div>
+
+          <button class="btn btn-primary" style="width:100%;margin-top:16px;justify-content:center;" id="analyze-btn"
+            onclick="analyzeDisease()" disabled>
+            🔍 Analyze with AI
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🧪 AI Diagnosis Result</div>
+          <div class="card-sub">Detailed disease report with treatment plan</div>
+
+          <div class="loader" id="disease-loader">
+            <div class="spinner"></div>
+            <div class="loader-text">AI analyzing your crop image…</div>
+          </div>
+
+          <div id="disease-result" class="result-box">
+            <div class="result-label">Disease Detected</div>
+            <div class="result-title" id="disease-name">—</div>
+            <div id="disease-severity"></div>
+            <div class="result-body" id="disease-body"></div>
+          </div>
+
+          <div id="disease-empty" style="text-align:center;padding:60px 20px;color:rgba(255,255,255,0.2);">
+            <div style="font-size:3rem;margin-bottom:12px;">🔭</div>
+            <div>Upload a photo to get your AI diagnosis</div>
+          </div>
+
+          <!-- Example diseases for demo -->
+          <div style="margin-top:20px;">
+            <div class="card-sub" style="margin-bottom:12px;">🎯 Or try a demo example:</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;">
+              <button class="btn btn-secondary" style="font-size:0.78rem;padding:7px 13px;"
+                onclick="loadDemo('blight')">🍅 Tomato Blight</button>
+              <button class="btn btn-secondary" style="font-size:0.78rem;padding:7px 13px;"
+                onclick="loadDemo('rust')">🌾 Wheat Rust</button>
+              <button class="btn btn-secondary" style="font-size:0.78rem;padding:7px 13px;"
+                onclick="loadDemo('smut')">🌽 Corn Smut</button>
+              <button class="btn btn-secondary" style="font-size:0.78rem;padding:7px 13px;"
+                onclick="loadDemo('aphid')">🫘 Soybean Aphids</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== CROP RECOMMENDATION ==================== -->
+    <section id="crops" class="section">
+      <div class="section-header">
+        <div class="section-icon">🌱</div>
+        <div>
+          <div class="section-title">Crop Recommendation System</div>
+          <div class="section-sub">Enter your soil & location data → AI recommends the most profitable crops</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">📋 Your Farm Details</div>
+          <div class="card-sub">The more info you give, the better our AI recommends</div>
+          <div class="divider"></div>
+
+          <div class="grid-2">
+            <div class="input-group">
+              <label class="input-label">Soil Type</label>
+              <select class="input-field" id="soil-type">
+                <option>Sandy Loam</option>
+                <option>Clay Loam</option>
+                <option>Black Soil</option>
+                <option>Red Soil</option>
+                <option>Alluvial</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Season</label>
+              <select class="input-field" id="season">
+                <option>Kharif (Monsoon)</option>
+                <option>Rabi (Winter)</option>
+                <option>Zaid (Summer)</option>
+                <option>Year-Round</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Rainfall (mm/yr)</label>
+              <select class="input-field" id="rainfall">
+                <option>
+                  < 500mm (Low)</option>
+                <option>500–1000mm (Medium)</option>
+                <option>1000–1500mm (High)</option>
+                <option>> 1500mm (Very High)</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label class="input-label">pH Level</label>
+              <select class="input-field" id="ph-level">
+                <option>6.0–6.5 (Slightly Acidic)</option>
+                <option>6.5–7.0 (Neutral)</option>
+                <option>7.0–7.5 (Slightly Alkaline)</option>
+                <option>7.5–8.0 (Alkaline)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label class="input-label">Available Water Source</label>
+            <select class="input-field" id="water-source">
+              <option>Rainfed only</option>
+              <option>Borewell / Drip</option>
+              <option>Canal / River</option>
+              <option>Both Rainfed + Irrigation</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Market Preference</label>
+            <select class="input-field" id="market-pref">
+              <option>Maximum Profit</option>
+              <option>Minimum Risk</option>
+              <option>Export Quality</option>
+              <option>Local Consumption</option>
+            </select>
+          </div>
+
+          <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="recommendCrops()">
+            🌾 Get AI Crop Recommendations
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🏆 AI Recommended Crops</div>
+          <div class="card-sub">Ranked by suitability, profit potential & risk</div>
+          <div class="divider"></div>
+
+          <div class="loader" id="crop-loader">
+            <div class="spinner"></div>
+            <div class="loader-text">AI matching crops to your farm profile…</div>
+          </div>
+
+          <div id="crop-results" style="display:none;">
+            <div class="crop-result-grid" id="crop-cards"></div>
+            <div class="fert-rec" style="margin-top:16px;" id="crop-insight">
+              <div class="fert-title">💡 AI Insight</div>
+              <div id="crop-insight-text" style="font-size:0.84rem;color:rgba(255,255,255,0.6);line-height:1.6;"></div>
+            </div>
+          </div>
+
+          <div id="crop-empty" style="text-align:center;padding:60px 20px;color:rgba(255,255,255,0.2);">
+            <div style="font-size:3rem;margin-bottom:12px;">🌾</div>
+            <div>Fill in your farm details to get personalized crop recommendations</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== MARKET PRICE ==================== -->
+    <section id="market" class="section">
+      <div class="section-header">
+        <div class="section-icon">📈</div>
+        <div>
+          <div class="section-title">Market Price Advisor</div>
+          <div class="section-sub">Live commodity prices + AI buy/sell signals + price trend forecasts</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+          <div>
+            <div class="card-title">🌍 Live Commodity Prices</div>
+            <div class="card-sub">Updated every 15 minutes · AI sell signals included</div>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <select class="input-field" id="region-select" style="width:auto;" onchange="updatePrices()">
+              <option>India (INR/Quintal)</option>
+              <option>US (USD/Bushel)</option>
+              <option>Global (USD/MT)</option>
+            </select>
+            <button class="btn btn-primary" onclick="refreshPrices()">🔄 Refresh</button>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="price-grid" id="price-grid"></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">🤖 AI Price Prediction</div>
+          <div class="card-sub">7-day forecast based on weather, demand & historical data</div>
+          <div class="divider"></div>
+          <div id="price-prediction">
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <div class="alert-item success">
+                <span class="alert-icon">📈</span>
+                <div><strong>Wheat:</strong> Expected to rise 8–12% in next 7 days due to export demand spike from North
+                  Africa.</div>
+              </div>
+              <div class="alert-item warn">
+                <span class="alert-icon">⚠️</span>
+                <div><strong>Corn:</strong> Price may dip 5% after upcoming harvest season glut. Sell before Friday if
+                  possible.</div>
+              </div>
+              <div class="alert-item info">
+                <span class="alert-icon">💡</span>
+                <div><strong>Soybean:</strong> Stable prices for next 14 days. Good time to negotiate forward contracts.
+                </div>
+              </div>
+              <div class="alert-item success">
+                <span class="alert-icon">🚀</span>
+                <div><strong>Tomato:</strong> Festival season demand spike predicted. Prices may surge 20–25% next week.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📊 Profit Calculator</div>
+          <div class="card-sub">Calculate your exact earnings before selling</div>
+          <div class="divider"></div>
+          <div class="input-group">
+            <label class="input-label">Select Crop</label>
+            <select class="input-field" id="calc-crop" onchange="calcProfit()">
+              <option value="wheat">Wheat</option>
+              <option value="corn">Corn</option>
+              <option value="soybean">Soybean</option>
+              <option value="tomato">Tomato</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Quantity (Quintals)</label>
+            <input type="number" class="input-field" id="calc-qty" value="50" oninput="calcProfit()" />
+          </div>
+          <div class="input-group">
+            <label class="input-label">Cost of Production (per Quintal)</label>
+            <input type="number" class="input-field" id="calc-cost" value="1200" oninput="calcProfit()" />
+          </div>
+          <div class="fert-rec" id="profit-result">
+            <div class="fert-title">💰 Profit Estimate</div>
+            <div class="fert-item"><span>Market Price</span><span class="fert-amount" id="mkt-price">₹2,150/q</span>
+            </div>
+            <div class="fert-item"><span>Total Revenue</span><span class="fert-amount" id="total-rev">₹1,07,500</span>
+            </div>
+            <div class="fert-item"><span>Total Cost</span><span style="color:#f87171;font-weight:600;"
+                id="total-cost">₹60,000</span></div>
+            <div class="fert-item"><span><strong>Net Profit</strong></span><span
+                style="color:var(--lime);font-weight:700;font-size:1.1rem;" id="net-profit">₹47,500</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SOIL HEALTH ==================== -->
+    <section id="soil" class="section">
+      <div class="section-header">
+        <div class="section-icon">🪱</div>
+        <div>
+          <div class="section-title">Soil Health + Fertilizer Plan</div>
+          <div class="section-sub">Enter soil test values → AI generates a precision fertilizer recommendation</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">🧪 Soil Test Input</div>
+          <div class="card-sub">Enter values from your soil test report</div>
+          <div class="divider"></div>
+
+          <div class="grid-2">
+            <div class="input-group">
+              <label class="input-label">Nitrogen (N) kg/ha</label>
+              <input type="number" class="input-field" id="soil-n" value="180" oninput="updateSoilMeters()" />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Phosphorus (P) kg/ha</label>
+              <input type="number" class="input-field" id="soil-p" value="22" oninput="updateSoilMeters()" />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Potassium (K) kg/ha</label>
+              <input type="number" class="input-field" id="soil-k" value="260" oninput="updateSoilMeters()" />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Organic Carbon %</label>
+              <input type="number" class="input-field" id="soil-oc" value="0.6" step="0.1"
+                oninput="updateSoilMeters()" />
+            </div>
+            <div class="input-group">
+              <label class="input-label">pH Level</label>
+              <input type="number" class="input-field" id="soil-ph" value="6.8" step="0.1"
+                oninput="updateSoilMeters()" />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Crop to Grow</label>
+              <select class="input-field" id="soil-crop" onchange="updateFertPlan()">
+                <option>Wheat</option>
+                <option>Corn</option>
+                <option>Soybean</option>
+                <option>Tomato</option>
+                <option>Rice</option>
+                <option>Cotton</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;"
+            onclick="updateFertPlan()">
+            🧬 Generate Fertilizer Plan
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📊 Soil Health Dashboard</div>
+          <div class="card-sub">Current nutrient levels vs optimal range</div>
+          <div class="divider"></div>
+
+          <div id="soil-meters">
+            <div class="soil-meter">
+              <div class="meter-label"><span class="meter-name">Nitrogen (N)</span><span class="meter-val" id="n-val"
+                  style="color:#f87171;">Low</span></div>
+              <div class="meter-bar">
+                <div class="meter-fill" id="n-fill"
+                  style="width:45%;background:linear-gradient(90deg,#f87171,#fb923c);"></div>
+              </div>
+            </div>
+            <div class="soil-meter">
+              <div class="meter-label"><span class="meter-name">Phosphorus (P)</span><span class="meter-val" id="p-val"
+                  style="color:var(--wheat);">Medium</span></div>
+              <div class="meter-bar">
+                <div class="meter-fill" id="p-fill" style="width:60%;"></div>
+              </div>
+            </div>
+            <div class="soil-meter">
+              <div class="meter-label"><span class="meter-name">Potassium (K)</span><span class="meter-val" id="k-val"
+                  style="color:var(--lime);">High</span></div>
+              <div class="meter-bar">
+                <div class="meter-fill" id="k-fill" style="width:85%;"></div>
+              </div>
+            </div>
+            <div class="soil-meter">
+              <div class="meter-label"><span class="meter-name">Organic Carbon</span><span class="meter-val" id="oc-val"
+                  style="color:#f87171;">Low</span></div>
+              <div class="meter-bar">
+                <div class="meter-fill" id="oc-fill"
+                  style="width:30%;background:linear-gradient(90deg,#f87171,#fb923c);"></div>
+              </div>
+            </div>
+            <div class="soil-meter">
+              <div class="meter-label"><span class="meter-name">pH Balance</span><span class="meter-val" id="ph-val"
+                  style="color:var(--lime);">Optimal</span></div>
+              <div class="meter-bar">
+                <div class="meter-fill" id="ph-fill" style="width:78%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="fert-rec" id="fert-plan">
+            <div class="fert-title">🌿 AI Fertilizer Recommendation — Wheat</div>
+            <div class="fert-item"><span>Urea (N Source)</span><span class="fert-amount">110 kg/acre</span></div>
+            <div class="fert-item"><span>DAP (P Source)</span><span class="fert-amount">35 kg/acre</span></div>
+            <div class="fert-item"><span>MOP (K Source)</span><span class="fert-amount">0 kg/acre ✓</span></div>
+            <div class="fert-item"><span>FYM / Compost</span><span class="fert-amount">2 tons/acre</span></div>
+            <div class="fert-item"><span>Zinc Sulphate</span><span class="fert-amount">10 kg/acre</span></div>
+            <div style="font-size:0.78rem;color:rgba(255,255,255,0.35);margin-top:10px;line-height:1.5;">
+              ⏱ Apply Urea in 2 splits: 50% at sowing, 50% at tillering stage. DAP at sowing only.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== AI CROP DOCTOR ==================== -->
+    <section id="doctor" class="section">
+      <div class="section-header">
+        <div class="section-icon">🤖</div>
+        <div>
+          <div class="section-title">AI Crop Doctor</div>
+          <div class="section-sub">Chat with your personal AI farm advisor — ask anything about crops, pests, soil,
+            markets</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card" style="display:flex;flex-direction:column;">
+          <div class="card-title">💬 Chat with FarmPulse AI</div>
+          <div class="card-sub">Powered by advanced agricultural AI — available 24/7</div>
+          <div class="divider"></div>
+
+          <div class="quick-questions">
+            <button class="quick-q" onclick="sendQuick('My corn leaves are turning yellow. What should I do?')">🌽
+              Yellow corn leaves?</button>
+            <button class="quick-q" onclick="sendQuick('When is the best time to sell my wheat?')">⏰ Best time to sell
+              wheat?</button>
+            <button class="quick-q" onclick="sendQuick('How much water does soybean need per week?')">💧 Soybean water
+              needs?</button>
+            <button class="quick-q" onclick="sendQuick('How do I control aphids organically?')">🐛 Control
+              aphids?</button>
+            <button class="quick-q" onclick="sendQuick('What fertilizer should I use before monsoon?')">🌧️ Pre-monsoon
+              fertilizer?</button>
+            <button class="quick-q" onclick="sendQuick('Is my soil pH of 6.8 good for rice?')">🌾 Soil pH for
+              rice?</button>
+          </div>
+
+          <div class="chat-container" id="chat-container">
+            <div class="chat-msg ai">
+              <div class="msg-avatar ai">🤖</div>
+              <div class="msg-bubble">
+                <strong>Namaste! I'm your FarmPulse AI Doctor 🌾</strong><br /><br />
+                I can help you with crop diseases, pest control, fertilizer advice, irrigation planning, market timing,
+                and any farming question you have. I understand your farm has 100 acres with multiple crops.<br /><br />
+                What's on your mind today? You can also upload a photo of your crop in the Disease AI tab for a visual
+                diagnosis.
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-input-row">
+            <input type="text" class="chat-input" id="chat-input"
+              placeholder="Ask anything — e.g. 'My tomato leaves have brown spots'"
+              onkeydown="if(event.key==='Enter') sendChat()" />
+            <button class="btn btn-primary" onclick="sendChat()">Send →</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📚 Knowledge Base</div>
+          <div class="card-sub">Common issues for your crops — click to get instant answers</div>
+          <div class="divider"></div>
+
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div
+              style="font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.3);margin-bottom:4px;">
+              🌽 Corn / Maize</div>
+            <button class="btn btn-secondary" style="text-align:left;font-size:0.82rem;"
+              onclick="sendQuick('How to treat Northern Corn Leaf Blight?')">Northern Corn Leaf Blight
+              treatment</button>
+            <button class="btn btn-secondary" style="text-align:left;font-size:0.82rem;"
+              onclick="sendQuick('My corn is not pollinating properly')">Poor corn pollination fix</button>
+
+            <div
+              style="font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.3);margin:8px 0 4px;">
+              🌾 Wheat</div>
+            <button class="btn btn-secondary" style="text-align:left;font-size:0.82rem;"
+              onclick="sendQuick('How to treat yellow rust in wheat?')">Yellow rust treatment</button>
+            <button class="btn btn-secondary" style="text-align:left;font-size:0.82rem;"
+              onclick="sendQuick('Wheat lodging prevention tips')">Wheat lodging prevention</button>
+
+            <div
+              style="font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.3);margin:8px 0 4px;">
+              🫘 Soybean</div>
+            <button class="btn btn-secondary" style="text-align:left;font-size:0.82rem;"
+              onclick="sendQuick('Soybean root rot symptoms and treatment')">Root rot symptoms & cure</button>
+            <button class="btn btn-secondary" style="text-align:left;font-size:0.82rem;"
+              onclick="sendQuick('How to improve soybean yield per acre?')">Improve soybean yield</button>
+
+            <div
+              style="font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.3);margin:8px 0 4px;">
+              🍅 Tomato</div>
+            <button class="btn btn-secondary" style="text-align:left;font-size:0.82rem;"
+              onclick="sendQuick('Tomato early blight vs late blight differences and treatment')">Early vs Late
+              Blight</button>
+            <button class="btn btn-secondary" style="text-align:left;font-size:0.82rem;"
+              onclick="sendQuick('Tomato blossom drop causes and solution')">Blossom drop causes</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // ===== NAVIGATION =====
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      const tabs = ['dashboard', 'disease', 'crops', 'market', 'soil', 'doctor'];
+      const idx = tabs.indexOf(id);
+      document.querySelectorAll('.nav-tab')[idx].classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ===== DISEASE DETECTION =====
+    function handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = document.getElementById('preview-img');
+        img.src = e.target.result;
+        img.style.display = 'block';
+        document.querySelector('.upload-icon').style.display = 'none';
+        document.querySelector('.upload-text').style.display = 'none';
+        document.getElementById('analyze-btn').disabled = false;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    const diseaseDB = {
+      blight: {
+        name: 'Early Blight (Alternaria solani)',
+        severity: 'high',
+        body: `<strong>Symptoms:</strong> Dark brown circular spots with concentric rings (target board pattern) on older leaves. Yellow halo surrounds spots.<br/><br/>
+    <strong>Cause:</strong> Fungal pathogen Alternaria solani. Spreads rapidly in warm, humid conditions (24–29°C).<br/><br/>
+    <strong>Treatment Plan:</strong><br/>
+    1. Apply <strong>Mancozeb 75% WP</strong> @ 2g/L water immediately<br/>
+    2. Follow up with <strong>Copper Oxychloride</strong> after 7 days<br/>
+    3. Remove and burn affected leaves<br/>
+    4. Avoid overhead irrigation<br/><br/>
+    <strong>Estimated Yield Loss if Untreated:</strong> 30–50%<br/>
+    <strong>Treatment Cost:</strong> ~₹1,200/acre`
+      },
+      rust: {
+        name: 'Yellow Rust (Puccinia striiformis)',
+        severity: 'high',
+        body: `<strong>Symptoms:</strong> Yellow-orange pustules in stripes along leaf veins. Leaves eventually dry out and die.<br/><br/>
+    <strong>Cause:</strong> Fungal pathogen Puccinia striiformis. Thrives in cool (10–15°C) and moist conditions.<br/><br/>
+    <strong>Treatment Plan:</strong><br/>
+    1. Spray <strong>Propiconazole 25% EC</strong> @ 1ml/L water<br/>
+    2. Apply <strong>Tebuconazole</strong> as a follow-up in 10 days<br/>
+    3. Use resistant varieties in next planting season<br/><br/>
+    <strong>Estimated Yield Loss if Untreated:</strong> 50–70%<br/>
+    <strong>Treatment Cost:</strong> ~₹950/acre`
+      },
+      smut: {
+        name: 'Common Smut (Ustilago maydis)',
+        severity: 'mid',
+        body: `<strong>Symptoms:</strong> Large, irregular galls (tumor-like growths) on ears, tassels, and leaves. Galls start white then turn black.<br/><br/>
+    <strong>Cause:</strong> Soil-borne fungus. Infection occurs through wounds from insects or cultivation.<br/><br/>
+    <strong>Treatment Plan:</strong><br/>
+    1. Remove and destroy galls BEFORE they rupture<br/>
+    2. Treat seeds with <strong>Thiram 75% WP</strong> @ 3g/kg seed<br/>
+    3. Rotate with non-grass crops next season<br/>
+    4. Improve drainage to reduce soil moisture<br/><br/>
+    <strong>Estimated Yield Loss if Untreated:</strong> 10–30%<br/>
+    <strong>Treatment Cost:</strong> ~₹600/acre`
+      },
+      aphid: {
+        name: 'Soybean Aphid (Aphis glycines)',
+        severity: 'mid',
+        body: `<strong>Symptoms:</strong> Colonies of tiny yellow-green insects on undersides of leaves. Leaves curl, yellow, and wilt. Sticky honeydew attracts mold.<br/><br/>
+    <strong>Cause:</strong> Rapid aphid population explosion in dry, warm weather. Also carries soybean mosaic virus.<br/><br/>
+    <strong>Treatment Plan:</strong><br/>
+    1. Spray <strong>Imidacloprid 17.8% SL</strong> @ 0.5ml/L water<br/>
+    2. Alternatively use <strong>Neem Oil 5%</strong> for organic control<br/>
+    3. Release lady beetles (natural predator) if possible<br/>
+    4. Monitor weekly — threshold is 250 aphids/plant<br/><br/>
+    <strong>Estimated Yield Loss if Untreated:</strong> 20–40%<br/>
+    <strong>Treatment Cost:</strong> ~₹500/acre`
+      }
+    };
+
+    function loadDemo(type) {
+      document.getElementById('disease-empty').style.display = 'none';
+      document.getElementById('disease-loader').classList.add('show');
+      document.getElementById('disease-result').classList.remove('show');
+
+      setTimeout(() => {
+        document.getElementById('disease-loader').classList.remove('show');
+        const d = diseaseDB[type];
+        document.getElementById('disease-name').textContent = d.name;
+        const sevEl = document.getElementById('disease-severity');
+        sevEl.innerHTML = `<span class="severity-badge ${d.severity === 'high' ? 'sev-high' : d.severity === 'mid' ? 'sev-mid' : 'sev-low'}">${d.severity === 'high' ? '🔴 High Severity' : d.severity === 'mid' ? '🟡 Medium Severity' : '🟢 Low Severity'}</span>`;
+        document.getElementById('disease-body').innerHTML = d.body;
+        document.getElementById('disease-result').classList.add('show');
+      }, 1800);
+    }
+
+    function analyzeDisease() {
+      const demos = ['blight', 'rust', 'smut', 'aphid'];
+      loadDemo(demos[Math.floor(Math.random() * demos.length)]);
+    }
+
+    // ===== CROP RECOMMENDATION =====
+    const cropDB = {
+      "Sandy Loam": {
+        "Kharif (Monsoon)": [
+          { emoji: '🌽', name: 'Corn', score: '97%', best: true, reason: 'Excellent drainage + warm temps = ideal for corn. High MSP support.' },
+          { emoji: '🫘', name: 'Soybean', score: '91%', reason: 'Good nitrogen fixation in sandy loam. Low input cost.' },
+          { emoji: '🥜', name: 'Groundnut', score: '85%', reason: 'Sandy loam perfect for pod development. Good local demand.' },
+        ]
+      },
+      "Black Soil": {
+        "Rabi (Winter)": [
+          { emoji: '🌾', name: 'Wheat', score: '98%', best: true, reason: 'Black soil moisture retention is perfect for wheat. Highest profit potential.' },
+          { emoji: '🌰', name: 'Chickpea', score: '88%', reason: 'Excellent in black soil. Fixes nitrogen. Low water requirement.' },
+          { emoji: '🌱', name: 'Linseed', score: '76%', reason: 'Good cash crop for black soil areas with MSP support.' },
+        ]
+      },
+      "default": {
+        "default": [
+          { emoji: '🌾', name: 'Wheat', score: '94%', best: true, reason: 'Highly adaptable. Strong market price + government MSP support.' },
+          { emoji: '🌽', name: 'Corn', score: '88%', reason: 'High yield potential. Multiple uses (food, feed, ethanol).' },
+          { emoji: '🫘', name: 'Soybean', score: '82%', reason: 'Low input cost. Good export demand. Fixes soil nitrogen.' },
+        ]
+      }
+    };
+
+    function recommendCrops() {
+      const soilType = document.getElementById('soil-type').value;
+      const season = document.getElementById('season').value;
+
+      document.getElementById('crop-empty').style.display = 'none';
+      document.getElementById('crop-results').style.display = 'none';
+      document.getElementById('crop-loader').classList.add('show');
+
+      setTimeout(() => {
+        document.getElementById('crop-loader').classList.remove('show');
+        const key = cropDB[soilType]?.[season] ? soilType : 'default';
+        const seasonKey = cropDB[key]?.[season] ? season : 'default';
+        const crops = cropDB[key][seasonKey];
+
+        const container = document.getElementById('crop-cards');
+        container.innerHTML = crops.map(c => `
+      <div class="crop-card ${c.best ? 'best' : ''}">
+        ${c.best ? '<div style="font-size:0.65rem;color:var(--lime);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">⭐ Best Pick</div>' : ''}
+        <div class="crop-emoji">${c.emoji}</div>
+        <div class="crop-name">${c.name}</div>
+        <div class="crop-score">Match: ${c.score}</div>
+        <div class="crop-reason">${c.reason}</div>
+      </div>
+    `).join('');
+
+        document.getElementById('crop-insight-text').innerHTML =
+          `Based on your <strong>${soilType}</strong> soil in <strong>${season}</strong> season with your water source and market preference, our AI has ranked ${crops.length} suitable crops. <strong>${crops[0].name}</strong> is our top recommendation with ${crops[0].score} compatibility. Consider intercropping the top 2 picks for risk diversification and better income stability.`;
+
+        document.getElementById('crop-results').style.display = 'block';
+      }, 2000);
+    }
+
+    // ===== MARKET PRICES =====
+    const priceData = [
+      { crop: '🌾 Wheat', price: '₹2,150', change: '+4.2%', up: true, signal: 'buy', bars: [55, 60, 58, 65, 70, 68, 75] },
+      { crop: '🌽 Corn', price: '₹1,820', change: '-2.1%', up: false, signal: 'hold', bars: [80, 75, 72, 70, 68, 65, 67] },
+      { crop: '🫘 Soybean', price: '₹4,280', change: '+11.3%', up: true, signal: 'buy', bars: [50, 55, 60, 65, 70, 75, 85] },
+      { crop: '🍅 Tomato', price: '₹1,640', change: '+7.8%', up: true, signal: 'buy', bars: [40, 42, 50, 55, 60, 65, 72] },
+      { crop: '🌸 Cotton', price: '₹5,900', change: '-0.5%', up: false, signal: 'hold', bars: [70, 72, 68, 70, 69, 68, 70] },
+      { crop: '🌾 Rice', price: '₹2,050', change: '+1.2%', up: true, signal: 'hold', bars: [60, 62, 61, 63, 65, 64, 66] },
+    ];
+
+    function renderPrices() {
+      const grid = document.getElementById('price-grid');
+      grid.innerHTML = priceData.map(p => `
+    <div class="price-card">
+      <div class="price-crop">${p.crop}</div>
+      <div class="price-value">${p.price}</div>
+      <div class="price-change ${p.up ? 'price-up' : 'price-down'}">
+        ${p.up ? '▲' : '▼'} ${p.change} (7 days)
+      </div>
+      <div class="mini-chart">
+        ${p.bars.map((h, i) => `<div class="bar ${i === p.bars.length - 1 ? 'active' : ''}" style="height:${h}%"></div>`).join('')}
+      </div>
+      <div>
+        <span class="sell-signal ${p.signal === 'buy' ? 'signal-buy' : p.signal === 'sell' ? 'signal-sell' : 'signal-hold'}">
+          ${p.signal === 'buy' ? '✅ SELL NOW' : p.signal === 'sell' ? '❌ AVOID SELLING' : '⏳ HOLD & WAIT'}
+        </span>
+      </div>
+    </div>
+  `).join('');
+    }
+    renderPrices();
+
+    function refreshPrices() {
+      priceData.forEach(p => {
+        p.bars = p.bars.map(b => Math.max(20, Math.min(95, b + (Math.random() - 0.5) * 10)));
+      });
+      renderPrices();
+    }
+
+    function updatePrices() { refreshPrices(); }
+
+    const calcPrices = { wheat: 2150, corn: 1820, soybean: 4280, tomato: 1640 };
+    function calcProfit() {
+      const crop = document.getElementById('calc-crop').value;
+      const qty = parseFloat(document.getElementById('calc-qty').value) || 0;
+      const cost = parseFloat(document.getElementById('calc-cost').value) || 0;
+      const price = calcPrices[crop];
+      const revenue = qty * price;
+      const totalCost = qty * cost;
+      const profit = revenue - totalCost;
+      document.getElementById('mkt-price').textContent = `₹${price.toLocaleString()}/q`;
+      document.getElementById('total-rev').textContent = `₹${revenue.toLocaleString()}`;
+      document.getElementById('total-cost').textContent = `₹${totalCost.toLocaleString()}`;
+      document.getElementById('net-profit').textContent = `${profit >= 0 ? '₹' + profit.toLocaleString() : '-₹' + Math.abs(profit).toLocaleString()}`;
+      document.getElementById('net-profit').style.color = profit >= 0 ? 'var(--lime)' : '#f87171';
+    }
+
+    // ===== SOIL HEALTH =====
+    function updateSoilMeters() {
+      const n = parseFloat(document.getElementById('soil-n').value) || 0;
+      const p = parseFloat(document.getElementById('soil-p').value) || 0;
+      const k = parseFloat(document.getElementById('soil-k').value) || 0;
+      const oc = parseFloat(document.getElementById('soil-oc').value) || 0;
+      const ph = parseFloat(document.getElementById('soil-ph').value) || 0;
+
+      // N: low<200, med 200-280, high>280
+      const nPct = Math.min(100, (n / 350) * 100);
+      const nStatus = n < 200 ? { label: 'Low', color: '#f87171' } : n < 280 ? { label: 'Medium', color: 'var(--wheat)' } : { label: 'High', color: 'var(--lime)' };
+      document.getElementById('n-fill').style.width = nPct + '%';
+      document.getElementById('n-fill').style.background = n < 200 ? 'linear-gradient(90deg,#f87171,#fb923c)' : n < 280 ? 'linear-gradient(90deg,var(--wheat),var(--sun))' : 'linear-gradient(90deg,var(--lime),#5fa825)';
+      document.getElementById('n-val').textContent = nStatus.label;
+      document.getElementById('n-val').style.color = nStatus.color;
+
+      const pPct = Math.min(100, (p / 40) * 100);
+      const pStatus = p < 15 ? { label: 'Low', color: '#f87171' } : p < 25 ? { label: 'Medium', color: 'var(--wheat)' } : { label: 'High', color: 'var(--lime)' };
+      document.getElementById('p-fill').style.width = pPct + '%';
+      document.getElementById('p-val').textContent = pStatus.label;
+      document.getElementById('p-val').style.color = pStatus.color;
+
+      const kPct = Math.min(100, (k / 400) * 100);
+      const kStatus = k < 150 ? { label: 'Low', color: '#f87171' } : k < 250 ? { label: 'Medium', color: 'var(--wheat)' } : { label: 'High', color: 'var(--lime)' };
+      document.getElementById('k-fill').style.width = kPct + '%';
+      document.getElementById('k-val').textContent = kStatus.label;
+      document.getElementById('k-val').style.color = kStatus.color;
+
+      const ocPct = Math.min(100, (oc / 2) * 100);
+      const ocStatus = oc < 0.5 ? { label: 'Very Low', color: '#f87171' } : oc < 0.75 ? { label: 'Low', color: '#f87171' } : oc < 1.0 ? { label: 'Medium', color: 'var(--wheat)' } : { label: 'Good', color: 'var(--lime)' };
+      document.getElementById('oc-fill').style.width = ocPct + '%';
+      document.getElementById('oc-val').textContent = ocStatus.label;
+      document.getElementById('oc-val').style.color = ocStatus.color;
+
+      const phPct = Math.abs(7 - ph) < 0.5 ? 85 : Math.abs(7 - ph) < 1 ? 65 : 40;
+      const phStatus = Math.abs(7 - ph) < 0.5 ? { label: 'Optimal', color: 'var(--lime)' } : Math.abs(7 - ph) < 1 ? { label: 'Acceptable', color: 'var(--wheat)' } : { label: 'Adjust', color: '#f87171' };
+      document.getElementById('ph-fill').style.width = phPct + '%';
+      document.getElementById('ph-val').textContent = phStatus.label;
+      document.getElementById('ph-val').style.color = phStatus.color;
+
+      updateFertPlan();
+    }
+
+    function updateFertPlan() {
+      const crop = document.getElementById('soil-crop').value;
+      const n = parseFloat(document.getElementById('soil-n').value) || 180;
+      const p = parseFloat(document.getElementById('soil-p').value) || 22;
+      const k = parseFloat(document.getElementById('soil-k').value) || 260;
+
+      const urea = n < 200 ? '110 kg/acre' : n < 280 ? '55 kg/acre' : '0 kg/acre ✓';
+      const dap = p < 15 ? '55 kg/acre' : p < 25 ? '35 kg/acre' : '0 kg/acre ✓';
+      const mop = k < 150 ? '40 kg/acre' : k < 250 ? '20 kg/acre' : '0 kg/acre ✓';
+
+      document.getElementById('fert-plan').innerHTML = `
+    <div class="fert-title">🌿 AI Fertilizer Recommendation — ${crop}</div>
+    <div class="fert-item"><span>Urea (N Source)</span><span class="fert-amount">${urea}</span></div>
+    <div class="fert-item"><span>DAP (P Source)</span><span class="fert-amount">${dap}</span></div>
+    <div class="fert-item"><span>MOP (K Source)</span><span class="fert-amount">${mop}</span></div>
+    <div class="fert-item"><span>FYM / Compost</span><span class="fert-amount">2 tons/acre</span></div>
+    <div class="fert-item"><span>Micronutrient Mix</span><span class="fert-amount">5 kg/acre</span></div>
+    <div style="font-size:0.78rem;color:rgba(255,255,255,0.35);margin-top:10px;line-height:1.5;">
+      ⏱ Split nitrogen application: 50% at sowing, 50% at ${crop === 'Corn' ? 'knee-high' : crop === 'Wheat' ? 'tillering' : crop === 'Tomato' ? 'flowering' : 'vegetative'} stage for best uptake.
+    </div>
+  `;
+    }
+
+    // ===== AI CHATBOT =====
+    const aiResponses = {
+      'yellow': `🌽 **Yellow Corn Leaves — Diagnosis**\n\nYellow leaves in corn typically indicate:\n\n1. **Nitrogen deficiency** (most common) — yellowing starts from leaf tip and progresses inward on older leaves. Apply Urea @ 30kg/acre as top dressing immediately.\n\n2. **Sulfur deficiency** — yellowing on young leaves first. Apply Ammonium Sulfate @ 20kg/acre.\n\n3. **Corn Streak Virus** — if yellowing has striped pattern, it's virus-spread by leafhoppers. Remove affected plants and control insects with Imidacloprid.\n\n💡 **Quick Test:** If oldest (bottom) leaves are yellow → Nitrogen. If newest (top) leaves are yellow → likely Sulfur or viral.`,
+
+      'sell': `📈 **Best Time to Sell Wheat — AI Analysis**\n\nBased on current market data:\n\n✅ **Current Price:** ₹2,150/quintal (up 4.2% this week)\n📊 **7-day forecast:** +8–12% expected (export demand spike)\n\n**My recommendation:**\n- Sell 30–40% of your stock NOW to lock in current prices\n- Hold the remaining 60% for 7–10 days for potential price peak\n- Set a price alert at ₹2,350/quintal as your target sell price\n\n⚠️ **Risk:** If rainfall disrupts transport routes next week, prices may drop 5–7%. Selling some now hedges that risk.`,
+
+      'water': `💧 **Soybean Water Requirements**\n\nSoybean needs approximately:\n\n• **Total season:** 450–700mm of water\n• **Per week (vegetative):** 25–30mm\n• **Per week (flowering/pod-fill):** 40–50mm ← most critical\n• **Per week (maturity):** 20–25mm (reduce now)\n\n**Smart Irrigation Schedule:**\n1. Irrigate every 7–10 days in dry weather\n2. Never irrigate within 24 hours of rain forecast\n3. Use drip irrigation — saves 35% water vs flood\n4. Soil should be moist at 6-inch depth, not waterlogged\n\n💡 **Water stress at flowering = 20–30% yield loss.** Protect this window!`,
+
+      'aphid': `🐛 **Organic Aphid Control Methods**\n\nHere are proven organic strategies:\n\n**Immediate Actions:**\n1. **Neem Oil spray** — mix 5ml/L water + 2ml dish soap. Spray every 5 days for 3 weeks\n2. **Garlic-chilli extract** — blend 100g garlic + 10 chillies in 1L water. Dilute 1:10 and spray\n3. **Strong water jet** — knocks aphids off plants physically (works for small infestations)\n\n**Biological Control:**\n4. **Release lady beetles** (ladybugs) — 1 lady beetle eats 50–200 aphids/day\n5. **Attract lacewings** — plant marigolds and dill nearby\n\n**Threshold:** Only spray when you count >20 aphids per leaf on 20%+ of plants. Below this, natural predators handle it.`,
+
+      'fertilizer': `🌧️ **Pre-Monsoon Fertilizer Guide**\n\nApply these **before first monsoon rains (2–3 weeks prior):**\n\n**Basal Application:**\n• DAP (Di-Ammonium Phosphate) @ 50kg/acre — provides P for root development\n• MOP (Muriate of Potash) @ 25kg/acre — improves disease resistance\n• FYM/Compost @ 2 tons/acre — improves soil structure and water retention\n\n**Avoid applying:**\n• ❌ Urea before monsoon — heavy rain leaches nitrogen. Apply in 2 splits during/after monsoon\n\n**Timing tip:** Apply basal dose, then lightly plow/mix into soil 2–3 days before expected rain for best uptake.`,
+
+      'ph': `🌾 **Soil pH 6.8 for Rice — Assessment**\n\nIdeal pH for rice: **6.0–7.0**\n\n✅ **Your pH of 6.8 is EXCELLENT for rice!** This is right in the sweet spot.\n\nAt pH 6.8:\n• Iron and manganese availability is optimal for rice\n• Phosphorus uptake is near maximum\n• Zinc is adequately available (rice's most common deficiency)\n\n**What to watch:**\n• If your field stays flooded for 4+ weeks, pH naturally drops to 6.5–7.0 due to anaerobic conditions — this is normal and beneficial for rice\n• Monitor for Zinc deficiency (brown spots on young leaves) — apply Zinc Sulphate @ 10kg/acre as preventive\n\n🎉 No pH adjustment needed — your soil is rice-ready!`,
+
+      'blight': `🍅 **Corn Leaf Blight Treatment**\n\n**Northern Corn Leaf Blight (NCLB):**\n\n**Symptoms to confirm:** Long, cigar-shaped grey-green lesions (2.5–15cm) on leaves, starting from lower canopy.\n\n**Treatment:**\n1. Apply **Propiconazole 25% EC** @ 1ml/L or **Azoxystrobin 23% SC** @ 1ml/L\n2. Spray during early morning or evening (avoid hot afternoon)\n3. Repeat after 14 days if pressure continues\n4. Add a spreader-sticker to improve fungicide adhesion\n\n**Cultural practices:**\n• Remove crop debris after harvest — NCLB survives in old corn residue\n• Plant resistant hybrids next season (look for Ht1/Ht2 resistance genes)\n• Avoid dense planting — improve airflow\n\n⚠️ If >50% of leaf area is affected before tasseling, yield loss can reach 30–50%.`,
+
+      'default': `🌾 **FarmPulse AI Response**\n\nThank you for your question! Based on my agricultural knowledge base:\n\nI understand you're asking about a common farming challenge. Here's what I recommend:\n\n1. **Monitor regularly** — check your crops every 2–3 days for early signs of stress\n2. **Document observations** — take dated photos of any unusual symptoms\n3. **Test before treating** — confirm the issue before applying pesticides or fertilizers\n4. **Consider weather** — temperature and humidity heavily influence plant health\n\nCould you describe your specific crop, symptoms, or issue in more detail? I can give you a more precise recommendation with specifics like:\n- Which crop is affected?\n- What do the symptoms look like?\n- Which part of the plant is affected?\n- How many acres/plants are showing symptoms?`
+    };
+
+    function getAIResponse(msg) {
+      const m = msg.toLowerCase();
+      if (m.includes('yellow') || m.includes('nitrogen')) return aiResponses['yellow'];
+      if (m.includes('sell') || m.includes('price') || m.includes('market')) return aiResponses['sell'];
+      if (m.includes('water') || m.includes('irrigat')) return aiResponses['water'];
+      if (m.includes('aphid') || m.includes('organic') || m.includes('pest')) return aiResponses['aphid'];
+      if (m.includes('fertilizer') || m.includes('monsoon') || m.includes('npk')) return aiResponses['fertilizer'];
+      if (m.includes('ph') || m.includes('rice') || m.includes('6.8')) return aiResponses['ph'];
+      if (m.includes('blight') || m.includes('rust') || m.includes('disease') || m.includes('corn leaf')) return aiResponses['blight'];
+      return aiResponses['default'];
+    }
+
+    function formatMsg(text) {
+      return text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br/>');
+    }
+
+    function addMsg(text, role) {
+      const container = document.getElementById('chat-container');
+      const div = document.createElement('div');
+      div.className = `chat-msg ${role}`;
+      const avatar = role === 'ai' ? '🤖' : '👨‍🌾';
+      div.innerHTML = `
+    <div class="msg-avatar ${role}">${avatar}</div>
+    <div class="msg-bubble">${role === 'ai' ? formatMsg(text) : text}</div>
+  `;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function addTypingIndicator() {
+      const container = document.getElementById('chat-container');
+      const div = document.createElement('div');
+      div.className = 'chat-msg ai'; div.id = 'typing-indicator';
+      div.innerHTML = `<div class="msg-avatar ai">🤖</div><div class="msg-bubble" style="display:flex;gap:6px;align-items:center;padding:16px;">
+    <div style="width:8px;height:8px;border-radius:50%;background:var(--lime);animation:pulse 1s infinite;"></div>
+    <div style="width:8px;height:8px;border-radius:50%;background:var(--lime);animation:pulse 1s 0.2s infinite;"></div>
+    <div style="width:8px;height:8px;border-radius:50%;background:var(--lime);animation:pulse 1s 0.4s infinite;"></div>
+  </div>`;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function sendChat() {
+      const input = document.getElementById('chat-input');
+      const msg = input.value.trim();
+      if (!msg) return;
+      addMsg(msg, 'user');
+      input.value = '';
+      addTypingIndicator();
+      setTimeout(() => {
+        document.getElementById('typing-indicator')?.remove();
+        addMsg(getAIResponse(msg), 'ai');
+      }, 1400);
+    }
+
+    function sendQuick(msg) {
+      showSection('doctor');
+      setTimeout(() => {
+        document.getElementById('chat-input').value = msg;
+        sendChat();
+      }, 300);
+    }
+
+    // Init
+    calcProfit();
+    updateSoilMeters();
+  </script>
+</body>
+
+</html>
