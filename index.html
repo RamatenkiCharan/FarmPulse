@@ -2802,14 +2802,19 @@
       </div>` + log.innerHTML;
 
       // Simulate Sending Message
-      showNotification("🚨 Security Alert", "Motion detected! Image sent to +91-9876543210.");
+      // Simulate Sending Message
+      const disPhone = ownerDetails?.phone || '+91...';
+      showNotification("🚨 Security Alert", `Motion detected! Image sent to ${disPhone}.`);
 
       // Speak Warning
       speakText("Security Alert! Motion detected.");
 
-      // WhatsApp Integration (Real)
-      const msg = `🚨 *Security Alert!* \nMotion detected at farm at ${now}. \nCheck feed immediately.`;
-      const waLink = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+      // WhatsApp Integration (Real - Auto)
+      const ownerName = ownerDetails?.name || 'Owner';
+      const ownerPhone = ownerDetails?.phone || '';
+
+      const msg = `🚨 *Security Alert!* \nHello ${ownerName}, Motion detected at farm at ${now}. \nI have pasted the intruder image below. 👇`;
+      const waLink = `https://wa.me/${ownerPhone}?text=${encodeURIComponent(msg)}`;
 
       // Custom Modal for "Message Sent" (WhatsApp Style)
       const modal = document.createElement('div');
@@ -2832,7 +2837,7 @@
           <button onclick="document.getElementById('intruder-modal').remove()" style="margin-left:auto;background:none;border:none;color:#fff;font-size:1.2rem;">&times;</button>
         </div>
         <div style="padding:16px;">
-          <div style="font-size:0.9rem;margin-bottom:10px;">🚨 <strong>Intruder Detected!</strong><br>Alerting: <strong>${ownerDetails?.name || 'Owner'}</strong> (${phone})<br><br>1. Click "Send via WhatsApp"<br>2. <strong>Paste (Ctrl+V)</strong> to attach image</div>
+          <div style="font-size:0.9rem;margin-bottom:10px;">🚨 <strong>Intruder Detected!</strong><br>Alerting: <strong>${ownerName}</strong> (${ownerPhone})<br><br>1. Click "Send via WhatsApp"<br>2. <strong>Paste (Ctrl+V)</strong> to attach image</div>
           <img src="${intruderImg}" style="width:100%;border-radius:8px;border:1px solid rgba(255,255,255,0.1);">
           <div style="margin-top:12px;">
             <a href="${waLink}" target="_blank" style="text-decoration:none;display:block;width:100%;text-align:center;background:#25D366;color:#fff;border:none;padding:10px;border-radius:6px;font-weight:600;">
