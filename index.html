@@ -379,6 +379,22 @@
       margin-bottom: 16px;
     }
 
+    #camera-preview {
+      width: 100%;
+      border-radius: 12px;
+      display: none;
+      margin-bottom: 16px;
+      transform: scaleX(-1);
+      /* Mirror effect */
+    }
+
+    .camera-controls {
+      display: none;
+      gap: 10px;
+      margin-bottom: 12px;
+      justify-content: center;
+    }
+
     /* === BUTTONS === */
     .btn {
       padding: 12px 28px;
@@ -1081,6 +1097,214 @@
         grid-template-columns: 1fr;
       }
     }
+
+    /* === SMART FARM === */
+    .smart-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .cctv-container {
+      position: relative;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid #333;
+    }
+
+    .cctv-feed {
+      width: 100%;
+      display: block;
+      transform: scaleX(-1);
+      /* Mirror for natural feel */
+    }
+
+    .cctv-overlay {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: #0f0;
+      font-family: monospace;
+      font-size: 0.9rem;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .rec-dot {
+      width: 10px;
+      height: 10px;
+      background: red;
+      border-radius: 50%;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      50% {
+        opacity: 0;
+      }
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 26px;
+      margin-left: auto;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255, 255, 255, 0.1);
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked+.slider {
+      background-color: var(--lime);
+    }
+
+    input:checked+.slider:before {
+      transform: translateX(24px);
+    }
+
+    .motor-card {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .log-item {
+      font-size: 0.8rem;
+      padding: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .log-item.alert {
+      color: #f87171;
+    }
+
+    .device-item {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .device-item:hover {
+      background: rgba(126, 203, 53, 0.15);
+      border-color: var(--lime);
+    }
+
+    .sensor-box {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .s-label {
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .s-val {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: white;
+      font-family: 'Syne', sans-serif;
+    }
+
+    /* CCTV PTZ Overlays */
+    .ptz-controls {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 6px;
+      border-radius: 12px;
+      z-index: 10;
+    }
+
+    .ptz-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.1s;
+    }
+
+    .ptz-btn:active {
+      background: var(--lime);
+      color: black;
+      transform: scale(0.95);
+    }
+
+    .cam-status {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      gap: 8px;
+      z-index: 10;
+    }
+
+    .status-icon {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
   </style>
 </head>
 
@@ -1090,14 +1314,19 @@
 
   <!-- NAV -->
   <nav>
-    <div class="logo">Farm<span>Pulse</span></div>
+    <div>
+      <div class="logo">Farm<span>Pulse</span></div>
+      <div style="font-size:0.75rem;opacity:0.7;margin-top:4px;color:rgba(255,255,255,0.6);">📍 16.5°N, 80.6°E
+        (Vijayawada, AP)</div>
+    </div>
     <div class="nav-tabs">
       <button class="nav-tab active" onclick="showSection('dashboard')">🏠 Dashboard</button>
       <button class="nav-tab" onclick="showSection('disease')">🔬 Disease AI</button>
       <button class="nav-tab" onclick="showSection('crops')">🌱 Crop Advisor</button>
       <button class="nav-tab" onclick="showSection('market')">📈 Market</button>
       <button class="nav-tab" onclick="showSection('soil')">🪱 Soil Health</button>
-      <button class="nav-tab" onclick="showSection('doctor')">🤖 AI Doctor</button>
+      <button class="nav-tab" onclick="showSection('smart-farm')">📡 Smart Farm</button>
+      <button class="nav-tab" onclick="showSection('doctor')">🤖 AI Suggests</button>
     </div>
     <div class="status-pill">
       <div class="pulse-dot"></div>
@@ -1115,15 +1344,15 @@
         <p>Real-time AI advisory across crop health, soil, markets, and weather — built for the modern farmer.</p>
         <div class="hero-stats">
           <div class="stat-item">
-            <div class="stat-num">100</div>
+            <div class="stat-num">0</div>
             <div class="stat-label">Acres Monitored</div>
           </div>
           <div class="stat-item">
-            <div class="stat-num">5</div>
+            <div class="stat-num">0</div>
             <div class="stat-label">AI Features</div>
           </div>
           <div class="stat-item">
-            <div class="stat-num">3</div>
+            <div class="stat-num">0</div>
             <div class="stat-label">Active Crops</div>
           </div>
           <div class="stat-item">
@@ -1137,23 +1366,23 @@
       <div class="dash-kpi-grid">
         <div class="kpi-card">
           <div class="kpi-label">Projected Revenue</div>
-          <div class="kpi-value green">$48,200</div>
-          <div class="kpi-change up">↑ 12% vs last season</div>
+          <div class="kpi-value green">$0</div>
+          <div class="kpi-change up">--</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Current Profit/Acre</div>
-          <div class="kpi-value yellow">$42</div>
-          <div class="kpi-change up">↑ After AI optimization</div>
+          <div class="kpi-value yellow">$0</div>
+          <div class="kpi-change up">--</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Water Saved This Week</div>
-          <div class="kpi-value green">18,400 L</div>
-          <div class="kpi-change up">↑ Smart irrigation active</div>
+          <div class="kpi-value green">0 L</div>
+          <div class="kpi-change up">--</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Pest Risk Level</div>
-          <div class="kpi-value yellow">Medium</div>
-          <div class="kpi-change down">⚠ Monitor wheat field</div>
+          <div class="kpi-value yellow">-</div>
+          <div class="kpi-change down">--</div>
         </div>
       </div>
 
@@ -1259,11 +1488,29 @@
           <div class="card-title">📸 Upload Crop Photo</div>
           <div class="card-sub">Take a close-up of affected leaves, stems, or fruits</div>
           <img id="preview-img" src="" alt="Preview" />
-          <div class="upload-zone" id="upload-zone">
+          <div class="upload-zone">
             <input type="file" accept="image/*" onchange="handleImageUpload(event)" />
-            <div class="upload-icon">🌿</div>
-            <div class="upload-text"><strong>Click or drag</strong> to upload crop photo</div>
-            <div style="font-size:0.75rem;color:rgba(255,255,255,0.3);margin-top:8px;">JPG, PNG supported</div>
+            <img id="preview-img" src="" alt="Preview" />
+            <video id="camera-preview" autoplay playsinline></video>
+            <canvas id="camera-canvas" style="display:none;"></canvas>
+
+            <div class="upload-icon">📸</div>
+            <div class="upload-text">
+              <strong>Click to Upload</strong> or Drag & Drop<br />
+              <span style="font-size:0.8rem;opacity:0.6;">Supports: JPEG, PNG</span>
+            </div>
+
+            <div class="camera-controls" id="cam-controls">
+              <button type="button" class="btn btn-secondary" onclick="stopCamera()">❌ Cancel</button>
+              <button type="button" class="btn btn-primary" onclick="capturePhoto()">🔘 Capture</button>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:20px;">
+            <button class="btn btn-secondary" style="flex:1;" onclick="startCamera()">📷 Use Camera</button>
+            <button class="btn btn-primary" style="flex:1;" id="analyze-btn" disabled onclick="analyzeDisease()">
+              🔬 Analyze Crop
+            </button>
           </div>
 
           <div style="margin-top:16px;">
@@ -1273,17 +1520,11 @@
               <option value="corn">🌽 Corn / Maize</option>
               <option value="wheat">🌾 Wheat</option>
               <option value="soybean">🫘 Soybean</option>
-              <option value="tomato">🍅 Tomato</option>
               <option value="rice">🌾 Rice</option>
               <option value="potato">🥔 Potato</option>
               <option value="cotton">🌸 Cotton</option>
             </select>
           </div>
-
-          <button class="btn btn-primary" style="width:100%;margin-top:16px;justify-content:center;" id="analyze-btn"
-            onclick="analyzeDisease()" disabled>
-            🔍 Analyze with AI
-          </button>
         </div>
 
         <div class="card">
@@ -1314,11 +1555,14 @@
               <button class="btn btn-secondary" style="font-size:0.78rem;padding:7px 13px;"
                 onclick="loadDemo('blight')">🍅 Tomato Blight</button>
               <button class="btn btn-secondary" style="font-size:0.78rem;padding:7px 13px;"
-                onclick="loadDemo('rust')">🌾 Wheat Rust</button>
+                onclick="loadDemo('rust')">🌾
+                Wheat Rust</button>
               <button class="btn btn-secondary" style="font-size:0.78rem;padding:7px 13px;"
-                onclick="loadDemo('smut')">🌽 Corn Smut</button>
+                onclick="loadDemo('smut')">🌽
+                Corn Smut</button>
               <button class="btn btn-secondary" style="font-size:0.78rem;padding:7px 13px;"
-                onclick="loadDemo('aphid')">🫘 Soybean Aphids</button>
+                onclick="loadDemo('aphid')">🫘
+                Soybean Aphids</button>
             </div>
           </div>
         </div>
@@ -1507,11 +1751,11 @@
           </div>
           <div class="input-group">
             <label class="input-label">Quantity (Quintals)</label>
-            <input type="number" class="input-field" id="calc-qty" value="50" oninput="calcProfit()" />
+            <input type="number" class="input-field" id="calc-qty" value="0" oninput="calcProfit()" />
           </div>
           <div class="input-group">
             <label class="input-label">Cost of Production (per Quintal)</label>
-            <input type="number" class="input-field" id="calc-cost" value="1200" oninput="calcProfit()" />
+            <input type="number" class="input-field" id="calc-cost" value="0" oninput="calcProfit()" />
           </div>
           <div class="fert-rec" id="profit-result">
             <div class="fert-title">💰 Profit Estimate</div>
@@ -1547,25 +1791,23 @@
           <div class="grid-2">
             <div class="input-group">
               <label class="input-label">Nitrogen (N) kg/ha</label>
-              <input type="number" class="input-field" id="soil-n" value="180" oninput="updateSoilMeters()" />
+              <input type="number" class="input-field" id="soil-n" value="0" oninput="updateSoilMeters()" />
             </div>
             <div class="input-group">
               <label class="input-label">Phosphorus (P) kg/ha</label>
-              <input type="number" class="input-field" id="soil-p" value="22" oninput="updateSoilMeters()" />
+              <input type="number" class="input-field" id="soil-p" value="0" oninput="updateSoilMeters()" />
             </div>
             <div class="input-group">
               <label class="input-label">Potassium (K) kg/ha</label>
-              <input type="number" class="input-field" id="soil-k" value="260" oninput="updateSoilMeters()" />
+              <input type="number" class="input-field" id="soil-k" value="0" oninput="updateSoilMeters()" />
             </div>
             <div class="input-group">
               <label class="input-label">Organic Carbon %</label>
-              <input type="number" class="input-field" id="soil-oc" value="0.6" step="0.1"
-                oninput="updateSoilMeters()" />
+              <input type="number" class="input-field" id="soil-oc" value="0" step="0.1" oninput="updateSoilMeters()" />
             </div>
             <div class="input-group">
               <label class="input-label">pH Level</label>
-              <input type="number" class="input-field" id="soil-ph" value="6.8" step="0.1"
-                oninput="updateSoilMeters()" />
+              <input type="number" class="input-field" id="soil-ph" value="0" step="0.1" oninput="updateSoilMeters()" />
             </div>
             <div class="input-group">
               <label class="input-label">Crop to Grow</label>
@@ -1645,12 +1887,145 @@
       </div>
     </section>
 
-    <!-- ==================== AI CROP DOCTOR ==================== -->
+    <!-- ==================== SMART FARM (IoT) ==================== -->
+    <section id="smart-farm" class="section">
+      <div class="section-header">
+        <div class="section-icon">📡</div>
+        <div>
+          <div class="section-title">Smart Farm Control Center</div>
+          <div class="section-sub">Remote Motor Control • CCTV • Live Sensors</div>
+        </div>
+      </div>
+
+      <div class="smart-grid">
+        <!-- Sensor Hub -->
+        <div class="card">
+          <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
+            <span>📡 Live Sensors</span>
+            <button class="btn btn-secondary" style="padding:4px 10px;font-size:0.7rem;" onclick="openDeviceManager()">➕
+              Add Device</button>
+          </div>
+          <div class="card-sub">Real-time crop telemetry</div>
+          <div class="divider"></div>
+
+          <div id="sensor-placeholder"
+            style="text-align:center;padding:20px;color:rgba(255,255,255,0.3);font-size:0.85rem;">
+            No physical devices connected.<br />Click "Add Device" to pair sensors.
+          </div>
+
+          <div id="live-sensors" style="display:none;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="sensor-box">
+              <div class="s-label">Soil Moisture</div>
+              <div class="s-val" id="live-moisture">--%</div>
+            </div>
+            <div class="sensor-box">
+              <div class="s-label">Canopy Temp</div>
+              <div class="s-val" id="live-temp">--°C</div>
+            </div>
+            <div class="sensor-box" style="grid-column:span 2;">
+              <div class="s-label">NPK Levels (mg/kg)</div>
+              <div class="s-val" style="font-size:1rem;" id="live-npk">N:-- P:-- K:--</div>
+            </div>
+            <div style="grid-column:span 2;font-size:0.7rem;color:var(--lime);margin-top:5px;">
+              ⚡ Data streaming to AI Doctor & Soil Plan
+            </div>
+          </div>
+        </div>
+
+        <!-- Motor Controls -->
+        <div class="card">
+          <div class="card-title">💧 Irrigation Motors</div>
+          <div class="card-sub">Remote control for water pumps</div>
+          <div class="divider"></div>
+
+          <div class="motor-card">
+            <div>
+              <div style="font-weight:700;">Main Borewell Pump</div>
+              <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);">North Field • 5HP</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="motor1" onchange="toggleMotor('Main Borewell', this)">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="motor-card">
+            <div>
+              <div style="font-weight:700;">Drip Irrigation Pump</div>
+              <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);">Greenhouse • 2HP</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="motor2" onchange="toggleMotor('Drip System', this)">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="alert-item info" id="motor-status" style="margin-top:20px;display:none;">
+            <div class="alert-icon">ℹ️</div>
+            <div>Status updated successfully via IoT Gateway.</div>
+          </div>
+        </div>
+
+        <!-- CCTV Panel -->
+        <div class="card">
+          <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
+            <span>📹 Security CCTV</span>
+            <span style="font-size:0.65rem;background:#0057b7;padding:2px 6px;border-radius:4px;">Powered by VIGI</span>
+          </div>
+          <div class="card-sub">Live feed with AI motion detection</div>
+          <div class="divider"></div>
+
+          <div class="cctv-container" id="cctv-container">
+            <video id="cctv-feed" class="cctv-feed" autoplay playsinline muted></video>
+
+            <div class="cctv-overlay">
+              <div class="rec-dot"></div> REC • LIVE
+            </div>
+
+            <div class="cam-status">
+              <div class="status-icon">🔋 85%</div>
+              <div class="status-icon">📶 4G</div>
+            </div>
+
+            <div class="ptz-controls">
+              <div></div>
+              <button class="ptz-btn" onclick="ptz('up')">▲</button>
+              <div></div>
+              <button class="ptz-btn" onclick="ptz('left')">◀</button>
+              <button class="ptz-btn" onclick="toggleFullscreen()" style="font-size:1.2rem;">⛶</button>
+              <button class="ptz-btn" onclick="ptz('right')">▶</button>
+              <div></div>
+              <button class="ptz-btn" onclick="ptz('down')">▼</button>
+              <div></div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+            <button class="btn btn-primary" style="flex:1;" onclick="startCCTV()">▶ Start Feed</button>
+            <button class="btn btn-secondary" style="flex:1;" onclick="stopCCTV()">⏹ Stop</button>
+            <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:8px;"
+              onclick="document.getElementById('device-manager').style.display='flex'">
+              📡 Connect External Device
+            </button>
+          </div>
+
+          <div style="margin-top:20px;">
+            <div class="card-title" style="font-size:1rem;">🛡️ Security Log</div>
+            <div id="security-log"
+              style="height:150px;overflow-y:auto;background:rgba(0,0,0,0.2);border-radius:8px;margin-top:10px;">
+              <div class="log-item">System Armed - Waiting for feed...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== AI SUGGESTS ==================== -->
     <section id="doctor" class="section">
       <div class="section-header">
         <div class="section-icon">🤖</div>
         <div>
-          <div class="section-title">AI Crop Doctor</div>
+          <div class="section-title">AI Suggests</div>
           <div class="section-sub">Chat with your personal AI farm advisor — ask anything about crops, pests, soil,
             markets</div>
         </div>
@@ -1658,7 +2033,7 @@
 
       <div class="grid-2">
         <div class="card" style="display:flex;flex-direction:column;">
-          <div class="card-title">💬 Chat with FarmPulse AI</div>
+          <div class="card-title">💬 Chat with AI Suggests</div>
           <div class="card-sub">Powered by advanced agricultural AI — available 24/7</div>
           <div class="divider"></div>
 
@@ -1671,6 +2046,7 @@
               needs?</button>
             <button class="quick-q" onclick="sendQuick('How do I control aphids organically?')">🐛 Control
               aphids?</button>
+            <button class="quick-q" onclick="startCamera()">📷 Use Camera</button>
             <button class="quick-q" onclick="sendQuick('What fertilizer should I use before monsoon?')">🌧️ Pre-monsoon
               fertilizer?</button>
             <button class="quick-q" onclick="sendQuick('Is my soil pH of 6.8 good for rice?')">🌾 Soil pH for
@@ -1681,7 +2057,7 @@
             <div class="chat-msg ai">
               <div class="msg-avatar ai">🤖</div>
               <div class="msg-bubble">
-                <strong>Namaste! I'm your FarmPulse AI Doctor 🌾</strong><br /><br />
+                <strong>Namaste! I'm "AI Suggests" — your farm advisor 🌾</strong><br /><br />
                 I can help you with crop diseases, pest control, fertilizer advice, irrigation planning, market timing,
                 and any farming question you have. I understand your farm has 100 acres with multiple crops.<br /><br />
                 What's on your mind today? You can also upload a photo of your crop in the Disease AI tab for a visual
@@ -1689,60 +2065,117 @@
               </div>
             </div>
           </div>
-
-          <div class="chat-input-row">
-            <input type="text" class="chat-input" id="chat-input"
-              placeholder="Ask anything — e.g. 'My tomato leaves have brown spots'"
-              onkeydown="if(event.key==='Enter') sendChat()" />
-            <button class="btn btn-primary" onclick="sendChat()">Send →</button>
-          </div>
+          <input type="text" class="chat-input" id="chat-input"
+            placeholder="Ask anything — e.g. 'My tomato leaves have brown spots'"
+            onkeydown="if(event.key==='Enter') sendChat()" />
+          <select id="voice-lang" class="chat-input"
+            style="width:auto;padding:0 8px;margin-right:4px;font-size:0.8rem;">
+            <option value="en-IN">🇬🇧 English</option>
+            <option value="hi-IN">🇮🇳 Hindi</option>
+            <option value="ta-IN">🇮🇳 Tamil</option>
+            <option value="te-IN">🇮🇳 Telugu</option>
+          </select>
+          <button class="btn btn-secondary" id="mic-btn" onclick="startVoiceInput()"
+            style="padding:0 12px;font-size:1.2rem;">🎤</button>
+          <button class="btn btn-primary" onclick="sendChat()">Send →</button>
         </div>
+      </div>
 
-        <div class="card">
-          <div class="card-title">📚 Knowledge Base</div>
-          <div class="card-sub">Common issues for your crops — click to get instant answers</div>
-          <div class="divider"></div>
+      <div class="card">
+        <div class="card-title">📚 Knowledge Base</div>
+        <div class="card-sub">Common issues for your crops — click to get instant answers</div>
+        <div class="divider"></div>
 
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            <div
-              style="font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.3);margin-bottom:4px;">
-              🌽 Corn / Maize</div>
-            <button class="btn btn-secondary" style="text-align:left;font-size:0.82rem;"
-              onclick="sendQuick('How to treat Northern Corn Leaf Blight?')">Northern Corn Leaf Blight
-              treatment</button>
-            <button class="btn btn-secondary" style="text-align:left;font-size:0.82rem;"
-              onclick="sendQuick('My corn is not pollinating properly')">Poor corn pollination fix</button>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div
+            style="font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.3);margin-bottom:4px;">
+            🌽 Corn / Maize</div>
+          <button class="btn btn-secondary" style="text-align:left;font-size:0.82rem;"
+            onclick="sendQuick('How to treat Northern Corn Leaf Blight?')">Northern Corn Leaf Blight
+            treatment</button>
+          <button class="btn btn-secondary" style="text-align:left;font-size:0.82rem;"
+            onclick="sendQuick('My corn is not pollinating properly')">Poor corn pollination fix</button>
 
-            <div
-              style="font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.3);margin:8px 0 4px;">
-              🌾 Wheat</div>
-            <button class="btn btn-secondary" style="text-align:left;font-size:0.82rem;"
-              onclick="sendQuick('How to treat yellow rust in wheat?')">Yellow rust treatment</button>
-            <button class="btn btn-secondary" style="text-align:left;font-size:0.82rem;"
-              onclick="sendQuick('Wheat lodging prevention tips')">Wheat lodging prevention</button>
+          <div
+            style="font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.3);margin:8px 0 4px;">
+            🌾 Wheat</div>
+          <button class="btn btn-secondary" style="text-align:left;font-size:0.82rem;"
+            onclick="sendQuick('How to treat yellow rust in wheat?')">Yellow rust treatment</button>
+          <button class="btn btn-secondary" style="text-align:left;font-size:0.82rem;"
+            onclick="sendQuick('Wheat lodging prevention tips')">Wheat lodging prevention</button>
 
-            <div
-              style="font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.3);margin:8px 0 4px;">
-              🫘 Soybean</div>
-            <button class="btn btn-secondary" style="text-align:left;font-size:0.82rem;"
-              onclick="sendQuick('Soybean root rot symptoms and treatment')">Root rot symptoms & cure</button>
-            <button class="btn btn-secondary" style="text-align:left;font-size:0.82rem;"
-              onclick="sendQuick('How to improve soybean yield per acre?')">Improve soybean yield</button>
+          <div
+            style="font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.3);margin:8px 0 4px;">
+            🫘 Soybean</div>
+          <button class="btn btn-secondary" style="text-align:left;font-size:0.82rem;"
+            onclick="sendQuick('Soybean root rot symptoms and treatment')">Root rot symptoms & cure</button>
+          <button class="btn btn-secondary" style="text-align:left;font-size:0.82rem;"
+            onclick="sendQuick('How to improve soybean yield per acre?')">Improve soybean yield</button>
 
-            <div
-              style="font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.3);margin:8px 0 4px;">
-              🍅 Tomato</div>
-            <button class="btn btn-secondary" style="text-align:left;font-size:0.82rem;"
-              onclick="sendQuick('Tomato early blight vs late blight differences and treatment')">Early vs Late
-              Blight</button>
-            <button class="btn btn-secondary" style="text-align:left;font-size:0.82rem;"
-              onclick="sendQuick('Tomato blossom drop causes and solution')">Blossom drop causes</button>
-          </div>
+          <div
+            style="font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.3);margin:8px 0 4px;">
+            🍅 Tomato</div>
+          <button class="btn btn-secondary" style="text-align:left;font-size:0.82rem;"
+            onclick="sendQuick('Tomato early blight vs late blight differences and treatment')">Early vs Late
+            Blight</button>
+          <button class="btn btn-secondary" style="text-align:left;font-size:0.82rem;"
+            onclick="sendQuick('Tomato blossom drop causes and solution')">Blossom drop causes</button>
         </div>
+      </div>
       </div>
     </section>
 
   </main>
+
+  <!-- ==================== DEVICE MANAGER (IoT) ==================== -->
+  <div id="device-manager"
+    style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:9999;align-items:center;justify-content:center;">
+    <div class="card" style="width:90%;max-width:500px;background:#1a1208;border:1px solid rgba(255,255,255,0.1);">
+      <div class="card-title">📡 Connect Physical Sensors</div>
+      <div class="card-sub">Scanning for nearby FarmPulse IoT devices...</div>
+      <div class="divider"></div>
+
+      <div id="scan-anim" style="text-align:center;padding:30px;">
+        <div class="spinner" style="margin:0 auto 20px;"></div>
+        <div style="color:rgba(255,255,255,0.5);">Searching via Bluetooth & Wi-Fi...</div>
+      </div>
+
+      <div id="device-list" style="display:none;flex-direction:column;gap:10px;">
+        <div class="device-item" onclick="connectDevice('Soil-Pro-X1')">
+          <div style="font-weight:700;">🌱 Soil-Pro X1</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);">Signal: Strong • ID: #8821</div>
+        </div>
+        <div class="device-item" onclick="connectDevice('Agri-Sense Weather')">
+          <div style="font-weight:700;">🌡️ Agri-Sense Weather</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);">Signal: Medium • ID: #B290</div>
+        </div>
+        <!-- New Options -->
+        <div class="device-item" onclick="connectDevice('Phone Camera (IP Webcam)')">
+          <div style="font-weight:700;">📱 Phone Camera (IP Webcam)</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);">Status: Discoverable • Wi-Fi</div>
+        </div>
+        <div class="device-item" onclick="connectDevice('Generic RTSP/ONVIF Camera')">
+          <div style="font-weight:700;">📹 Generic IP Camera (RTSP)</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);">Protocol: ONVIF • Port: 554</div>
+        </div>
+      </div>
+
+      <!-- Manual Input for Realism -->
+      <div id="manual-ip-input" style="display:none;margin-top:15px;width:100%;">
+        <label style="display:block;font-size:0.75rem;margin-bottom:5px;color:rgba(255,255,255,0.6);">Enter Camera
+          Stream URL:</label>
+        <input type="text" id="camera-url" placeholder="http://192.168.1.5:8080/video"
+          style="width:100%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:8px;border-radius:4px;font-size:0.85rem;">
+        <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;"
+          onclick="connectManualDevice()">
+          🔗 Connect Stream
+        </button>
+      </div>
+
+      <button class="btn btn-secondary" style="width:100%;margin-top:20px;justify-content:center;"
+        onclick="closeDeviceManager()">Cancel</button>
+    </div>
+  </div>
 
   <script>
     // ===== NAVIGATION =====
@@ -1750,13 +2183,65 @@
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
       document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
       document.getElementById(id).classList.add('active');
-      const tabs = ['dashboard', 'disease', 'crops', 'market', 'soil', 'doctor'];
+      const tabs = ['dashboard', 'disease', 'crops', 'market', 'soil', 'smart-farm', 'doctor'];
       const idx = tabs.indexOf(id);
       document.querySelectorAll('.nav-tab')[idx].classList.add('active');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     // ===== DISEASE DETECTION =====
+    let videoStream = null;
+
+    async function startCamera() {
+      try {
+        showSection('disease');
+        const video = document.getElementById('camera-preview');
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        videoStream = stream;
+        video.srcObject = stream;
+        video.style.display = 'block';
+
+        // Hide upload UI
+        document.querySelector('.upload-icon').style.display = 'none';
+        document.querySelector('.upload-text').style.display = 'none';
+        document.getElementById('preview-img').style.display = 'none';
+        document.getElementById('cam-controls').style.display = 'flex';
+
+      } catch (err) {
+        alert("Could not access camera: " + err);
+      }
+    }
+
+    function stopCamera() {
+      if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+        videoStream = null;
+      }
+      document.getElementById('camera-preview').style.display = 'none';
+      document.getElementById('cam-controls').style.display = 'none';
+      document.querySelector('.upload-icon').style.display = 'block';
+      document.querySelector('.upload-text').style.display = 'block';
+    }
+
+    function capturePhoto() {
+      const video = document.getElementById('camera-preview');
+      const canvas = document.getElementById('camera-canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const dataURL = canvas.toDataURL('image/jpeg');
+      document.getElementById('preview-img').src = dataURL;
+      document.getElementById('preview-img').style.display = 'block';
+
+      stopCamera();
+      document.querySelector('.upload-icon').style.display = 'none';
+      document.querySelector('.upload-text').style.display = 'none';
+      document.getElementById('analyze-btn').disabled = false;
+    }
+
     function handleImageUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -1770,6 +2255,80 @@
         document.getElementById('analyze-btn').disabled = false;
       };
       reader.readAsDataURL(file);
+    }
+
+    async function analyzeDisease() {
+      const btn = document.getElementById('analyze-btn');
+      const img = document.getElementById('preview-img');
+      const cropType = document.getElementById('crop-type-select')?.value || 'corn';
+      const lang = document.getElementById('voice-lang')?.value || 'en-IN';
+
+      if (!img.src) { alert("Please upload or capture an image first."); return; }
+
+      // Reset UI
+      document.getElementById('disease-empty').style.display = 'none';
+      document.getElementById('disease-loader').classList.add('show');
+      document.getElementById('disease-result').style.display = 'none';
+      btn.disabled = true; btn.textContent = "Analyzing...";
+
+      try {
+        // Convert Base64 to Blob
+        const fetchResponse = await fetch(img.src);
+        const blob = await fetchResponse.blob();
+
+        const formData = new FormData();
+        formData.append('file', blob, 'capture.jpg');
+        formData.append('crop_type', cropType);
+        formData.append('language', lang); // Send selected language
+
+        const response = await fetch('http://localhost:8000/verify-crop', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) throw new Error("Analysis failed");
+
+        const data = await response.json();
+
+        // Update UI with Result
+        document.getElementById('disease-loader').classList.remove('show');
+        document.getElementById('disease-result').style.display = 'block';
+
+        // Display Disease Info from Backend
+        const info = data.disease_diagnosis || { name: "Healthy / Unknown", severity: "low", body: "No specific disease detected." };
+
+        document.getElementById('disease-name').textContent = info.name;
+
+        // Severity Logic (Mock)
+        const severity = info.name.includes("Healthy") ? "low" : "high";
+        const sevHtml = severity === 'high' ?
+          `<span class="severity-badge sev-high">🔴 High Severity</span>` :
+          `<span class="severity-badge sev-low">🟢 Low Severity</span>`;
+        document.getElementById('disease-severity').innerHTML = sevHtml;
+
+        // Build Body HTML
+        let bodyHtml = "";
+        if (info.symptoms) bodyHtml += `<strong>Symptoms:</strong> ${info.symptoms}<br/><br/>`;
+        if (info.cause) bodyHtml += `<strong>Cause:</strong> ${info.cause}<br/><br/>`;
+        if (info.solution) bodyHtml += `<strong>Treatment:</strong> ${info.solution}<br/><br/>`;
+        if (info.prevention) bodyHtml += `<strong>Prevention:</strong> ${info.prevention}`;
+
+        document.getElementById('disease-body').innerHTML = bodyHtml;
+
+        // Speak Result (Localized)
+        let speechMsg = `Diagnosis complete. Detected potential ${info.name}.`;
+        if (lang.startsWith('hi')) speechMsg = `निदान पूरा हुआ। संभावित रोग: ${info.name}`;
+        if (lang.startsWith('te')) speechMsg = `వ్యాధి నిర్ధారణ పూర్తయింది. గుర్తించిన వ్యాధి: ${info.name}`;
+
+        speakText(speechMsg);
+
+      } catch (err) {
+        console.error(err);
+        alert("Error analyzing crop: " + err.message);
+        document.getElementById('disease-loader').classList.remove('show');
+      } finally {
+        btn.disabled = false; btn.textContent = "🔬 Analyze Crop";
+      }
     }
 
     const diseaseDB = {
@@ -1842,9 +2401,102 @@
       }, 1800);
     }
 
-    function analyzeDisease() {
-      const demos = ['blight', 'rust', 'smut', 'aphid'];
-      loadDemo(demos[Math.floor(Math.random() * demos.length)]);
+    async function analyzeDisease() {
+      const fileInput = document.querySelector('input[type="file"]');
+      const previewImg = document.getElementById('preview-img');
+      const cropType = document.getElementById('crop-type-select').value;
+
+      let formData = new FormData();
+
+      if (fileInput.files.length > 0) {
+        formData.append('image', fileInput.files[0]);
+      } else if (previewImg.src.startsWith('data:')) {
+        // Convert base64 to blob
+        const res = await fetch(previewImg.src);
+        const blob = await res.blob();
+        formData.append('image', blob, 'camera-capture.jpg');
+      } else {
+        alert("Please upload an image or capture one using the camera.");
+        return;
+      }
+
+      if (cropType) {
+        formData.append('crop_type', cropType);
+      }
+
+      // UI Updates
+      document.getElementById('disease-empty').style.display = 'none';
+      document.getElementById('disease-loader').classList.add('show');
+      document.getElementById('disease-result').classList.remove('show');
+
+      try {
+        // Call Backend API
+        const response = await fetch('http://localhost:8000/verify-crop', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server Error: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        // Hide loader
+        document.getElementById('disease-loader').classList.remove('show');
+
+        // Show Results (Mapping Backend Data to UI)
+        if (data.disease_diagnosis) {
+          // DETAILED DISEASE DIAGNOSIS
+          const diag = data.disease_diagnosis;
+          document.getElementById('disease-name').innerHTML = `🤒 ${diag.name} <button class="btn btn-sm btn-secondary" style="margin-left:10px;padding:2px 8px;" onclick="speakText('${diag.name}. ${diag.solution}')">🔊 Listen</button>`;
+
+          let details = `<div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;margin-bottom:10px;">
+                <strong>Symptoms:</strong> ${diag.symptoms}<br/><br/>
+                <strong>Cause:</strong> ${diag.cause}
+            </div>
+            <div style="background:rgba(126, 203, 53, 0.1);padding:10px;border-radius:8px;border-left:3px solid var(--lime);">
+                <strong>✅ Solution:</strong> ${diag.solution}<br/>
+                <strong>🛡️ Prevention:</strong> ${diag.prevention}
+            </div>
+            <div style="margin-top:10px;font-size:0.8rem;opacity:0.7;">
+                <strong>Defects Analysis:</strong> Bruises: ${data.defect_analysis?.bruise_count || 0} • Spots: ${data.defect_analysis?.spot_count || 0}
+            </div>`;
+
+          document.getElementById('disease-body').innerHTML = details;
+
+          // Auto-speak result
+          speakText(`Diagnosis complete. Detected ${diag.name}. Solution is: ${diag.solution}`);
+
+        } else {
+          // QUALITY GRADING ONLY
+          document.getElementById('disease-name').textContent = data.quality_grade || "Analysis Complete";
+
+          const sevEl = document.getElementById('disease-severity');
+          const score = data.purity_score * 100;
+          let severityClass = score > 90 ? 'sev-low' : score > 70 ? 'sev-mid' : 'sev-high';
+          let severityText = score > 90 ? '🟢 High Quality' : score > 70 ? '🟡 Medium Quality' : '🔴 Low Quality';
+
+          sevEl.innerHTML = `<span class="severity-badge ${severityClass}">${severityText} (${score.toFixed(1)}% Purity)</span>`;
+
+          let details = `<strong>Defects Found:</strong><br/>`;
+          if (data.defect_analysis) {
+            details += `Bruises: ${data.defect_analysis.bruise_count}<br/>`;
+            details += `Spots: ${data.defect_analysis.spot_count}<br/>`;
+            details += `Color Uniformity: ${(data.defect_analysis.color_uniformity * 100).toFixed(1)}%<br/>`;
+          }
+          details += `<br/><strong>Estimated Value:</strong> ₹${data.estimated_valuation?.price_per_quintal || 0} / quintal`;
+
+          document.getElementById('disease-body').innerHTML = details;
+        }
+
+        document.getElementById('disease-result').classList.add('show');
+
+      } catch (err) {
+        console.error(err);
+        document.getElementById('disease-loader').classList.remove('show');
+        alert("Failed to analyze image. Ensure the backend server is running.\nError: " + err.message);
+      }
     }
 
     // ===== CROP RECOMMENDATION =====
@@ -2027,35 +2679,426 @@
   `;
     }
 
+    // ===== SMART FARM LOGIC =====
+    function toggleMotor(name, checkbox) {
+      const status = checkbox.checked ? "ON" : "OFF";
+      const statusBox = document.getElementById('motor-status');
+
+      const msg = checkbox.checked ?
+        `<div><strong>${name}</strong> turned <strong>ON</strong></div><div style="font-size:0.75rem;margin-top:2px;">📱 Notification sent to Owner's Phone</div>` :
+        `<div><strong>${name}</strong> turned <strong>OFF</strong></div><div style="font-size:0.75rem;margin-top:2px;">📱 Device disconnected via VIGI Cloud</div>`;
+
+      statusBox.style.display = 'flex';
+      statusBox.innerHTML = `<div class="alert-icon">${checkbox.checked ? '🌊' : '🛑'}</div><div>${msg}</div>`;
+
+      // Auto hide after 4s
+      setTimeout(() => { statusBox.style.display = 'none'; }, 4000);
+    }
+
+    let cctvStream = null;
+    let motionInterval = null;
+    const cctvVideo = document.getElementById('cctv-feed');
+    let lastFrameData = null;
+
+    async function startCCTV() {
+      // Security Check
+      if (!ownerDetails) {
+        checkSecurityLogin();
+        return;
+      }
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        cctvStream = stream;
+        cctvVideo.srcObject = stream;
+
+        document.getElementById('security-log').innerHTML = `<div class="log-item" style="color:#7ecb35;">✅ System Active - Monitoring...</div>` + document.getElementById('security-log').innerHTML;
+
+        // Start Motion Detection Loop
+        startMotionDetection();
+
+      } catch (err) {
+        alert("Camera access denied: " + err);
+      }
+    }
+
+    function stopCCTV() {
+      if (cctvStream) {
+        cctvStream.getTracks().forEach(track => track.stop());
+        cctvStream = null;
+      }
+      if (motionInterval) clearInterval(motionInterval);
+      document.getElementById('security-log').innerHTML += `<div class="log-item">⏹ Feed Stopped</div>`;
+    }
+
+    function startMotionDetection() {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const width = 100; // Low res for performance
+      const height = 100;
+      canvas.width = width;
+      canvas.height = height;
+
+      motionInterval = setInterval(() => {
+        if (!cctvStream) return;
+
+        ctx.drawImage(cctvVideo, 0, 0, width, height);
+        const frameData = ctx.getImageData(0, 0, width, height).data;
+
+        if (lastFrameData) {
+          let diff = 0;
+          // Simple pixel diff
+          for (let i = 0; i < frameData.length; i += 4) {
+            diff += Math.abs(frameData[i] - lastFrameData[i]); // R
+            diff += Math.abs(frameData[i + 1] - lastFrameData[i + 1]); // G
+            diff += Math.abs(frameData[i + 2] - lastFrameData[i + 2]); // B
+          }
+
+          // Sensitivity threshold
+          if (diff > 400000) {
+            triggerSecurityAlert();
+          }
+        }
+
+        lastFrameData = frameData;
+      }, 500); // Check every 500ms
+    }
+
+    function triggerSecurityAlert() {
+      // play sound
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+
+      oscillator.type = 'sawtooth';
+      oscillator.frequency.value = 800; // Hz
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      oscillator.start();
+
+      // Siren effect
+      gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      oscillator.frequency.linearRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+      oscillator.frequency.linearRampToValueAtTime(800, audioCtx.currentTime + 0.2);
+      oscillator.stop(audioCtx.currentTime + 0.5);
+
+      // CAPTURE IMAGE OF INTRUDER
+      const video = document.getElementById('cctv-feed');
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      const intruderImg = canvas.toDataURL('image/jpeg');
+
+      // SHOW ALERT MODAL
+      const now = new Date().toLocaleTimeString();
+
+      // Update Log
+      const log = document.getElementById('security-log');
+      log.innerHTML = `<div class="log-item alert">
+        🚨 MOTION DETECTED at ${now}<br/>
+        <img src="${intruderImg}" style="width:100px;border-radius:4px;margin-top:4px;border:1px solid #fa5252;">
+      </div>` + log.innerHTML;
+
+      // Simulate Sending Message
+      showNotification("🚨 Security Alert", "Motion detected! Image sent to +91-9876543210.");
+
+      // Speak Warning
+      speakText("Security Alert! Motion detected.");
+
+      // WhatsApp Integration (Real)
+      const msg = `🚨 *Security Alert!* \nMotion detected at farm at ${now}. \nCheck feed immediately.`;
+      const waLink = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+
+      // Custom Modal for "Message Sent" (WhatsApp Style)
+      const modal = document.createElement('div');
+      modal.id = 'intruder-modal';
+      modal.style.cssText = `
+        position: fixed; top: 20px; right: 20px; width: 320px;
+        background: #121b22; color: #fff; border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.5); z-index: 10000;
+        font-family: 'Segoe UI', sans-serif; overflow: hidden;
+        animation: slideInRight 0.4s ease-out;
+      `;
+
+      modal.innerHTML = `
+        <div style="background:#00a884;padding:12px 16px;display:flex;align-items:center;gap:10px;">
+          <div style="font-size:1.2rem;">📱</div>
+          <div>
+            <div style="font-weight:700;font-size:0.95rem;">WhatsApp Alert</div>
+            <div style="font-size:0.75rem;opacity:0.8;">Action Required</div>
+          </div>
+          <button onclick="document.getElementById('intruder-modal').remove()" style="margin-left:auto;background:none;border:none;color:#fff;font-size:1.2rem;">&times;</button>
+        </div>
+        <div style="padding:16px;">
+          <div style="font-size:0.9rem;margin-bottom:10px;">🚨 <strong>Intruder Detected!</strong><br>Alerting: <strong>${ownerDetails?.name || 'Owner'}</strong> (${phone})<br><br>1. Click "Send via WhatsApp"<br>2. <strong>Paste (Ctrl+V)</strong> to attach image</div>
+          <img src="${intruderImg}" style="width:100%;border-radius:8px;border:1px solid rgba(255,255,255,0.1);">
+          <div style="margin-top:12px;">
+            <a href="${waLink}" target="_blank" style="text-decoration:none;display:block;width:100%;text-align:center;background:#25D366;color:#fff;border:none;padding:10px;border-radius:6px;font-weight:600;">
+               📲 Send to ${phone || 'WhatsApp'}
+            </a>
+             <button onclick="document.getElementById('intruder-modal').remove()" style="width:100%;margin-top:8px;background:none;color:#aaa;border:none;padding:8px;font-size:0.8rem;">Dismiss</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      // Auto remove after 15s
+      setTimeout(() => { if (document.getElementById('intruder-modal')) document.getElementById('intruder-modal').remove(); }, 15000);
+
+      // Throttle alerts (pause detection briefly)
+      clearInterval(motionInterval);
+      setTimeout(startMotionDetection, 5000);
+    }
+
+    // ===== VOICE ASSISTANT =====
+    const languages = {
+      'en-IN': { name: 'English (India)', code: 'en-IN' },
+      'hi-IN': { name: 'Hindi (हिंदी)', code: 'hi-IN' },
+      'ta-IN': { name: 'Tamil (தமிழ்)', code: 'ta-IN' },
+      'te-IN': { name: 'Telugu (telugu)', code: 'te-IN' }
+    };
+
+    function speakText(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+
+        const langCode = document.getElementById('voice-lang')?.value || 'en-IN';
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = langCode;
+
+        // Try to find a matching voice
+        const voices = window.speechSynthesis.getVoices();
+        const specificVoice = voices.find(v => v.lang === langCode);
+        if (specificVoice) utterance.voice = specificVoice;
+
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    function startVoiceInput() {
+      // Check browser support
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert("Voice input not supported in this browser. Please use Google Chrome or Edge.");
+        return;
+      }
+
+      const recognition = new SpeechRecognition();
+      const langCode = document.getElementById('voice-lang')?.value || 'en-IN';
+      recognition.lang = langCode;
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      const btn = document.getElementById('mic-btn');
+
+      recognition.onstart = function () {
+        btn.innerHTML = '🔴 Listening...';
+        btn.classList.add('pulse-anim'); // Add CSS class for pulsing effect if needed
+      };
+
+      recognition.onresult = function (event) {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('chat-input').value = transcript;
+        setTimeout(() => sendChat(), 500); // Auto-send after brief pause
+      };
+
+      recognition.onerror = function (event) {
+        console.error("Voice error:", event.error);
+        if (event.error === 'no-speech') {
+          showNotification("Voice Error", "No speech detected. Please try again.");
+        } else if (event.error === 'not-allowed') {
+          alert("Microphone access denied. Please allow microphone permissions.");
+        } else {
+          showNotification("Voice Error", "Error: " + event.error);
+        }
+        btn.innerHTML = '🎤';
+      };
+
+      recognition.onend = function () {
+        btn.innerHTML = '🎤';
+        btn.classList.remove('pulse-anim');
+      };
+
+      try {
+        recognition.start();
+      } catch (e) {
+        console.error("Recognition start error:", e);
+      }
+    }
+
+
+
+    // NEW NOTIFICATION SYSTEM
+    function showNotification(title, message) {
+      const notif = document.createElement('div');
+      notif.style.cssText = `
+            position: fixed; top: 20px; right: 20px; background: #1a1b1e; border-left: 4px solid #fa5252;
+            padding: 15px; border-radius: 4px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); z-index: 10000;
+            font-family: 'Inter', sans-serif; animation: slideIn 0.3s ease-out;
+        `;
+      notif.innerHTML = `<strong>${title}</strong><div style="font-size:0.9rem;margin-top:4px;">${message}</div>`;
+      document.body.appendChild(notif);
+
+      setTimeout(() => {
+        notif.style.opacity = '0';
+        setTimeout(() => notif.remove(), 300);
+      }, 5000);
+    }
+
+    function ptz(dir) {
+      // Sim movement
+      const video = document.getElementById('cctv-feed');
+      const overlay = document.querySelector('.cctv-overlay');
+      const originalText = overlay.innerHTML;
+
+      overlay.innerHTML = `<div class="rec-dot"></div> MOVING ${dir.toUpperCase()}...`;
+
+      // visual nudging
+      let x = 0, y = 0;
+      if (dir === 'left') x = 30;
+      if (dir === 'right') x = -30;
+      if (dir === 'up') y = 30;
+      if (dir === 'down') y = -30;
+
+      video.style.transition = 'transform 0.5s';
+      video.style.transform = `scaleX(-1) translate(${x}px, ${y}px)`;
+
+      setTimeout(() => {
+        video.style.transform = `scaleX(-1) translate(0, 0)`;
+        overlay.innerHTML = originalText;
+      }, 800);
+    }
+
+    function toggleFullscreen() {
+      const elem = document.getElementById('cctv-container');
+      if (!document.fullscreenElement) {
+        elem.requestFullscreen().catch(err => {
+          alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    // ===== IOT DEVICE MANAGER =====
+    function openDeviceManager() {
+      document.getElementById('device-manager').style.display = 'flex';
+      // Sim scanning
+      document.getElementById('scan-anim').style.display = 'block';
+      document.getElementById('device-list').style.display = 'none';
+
+      setTimeout(() => {
+        document.getElementById('scan-anim').style.display = 'none';
+        document.getElementById('device-list').style.display = 'flex';
+      }, 2000);
+    }
+
+    function closeDeviceManager() {
+      document.getElementById('device-manager').style.display = 'none';
+    }
+
+    function connectDevice(name) {
+      if (name.includes('Phone') || name.includes('Generic')) {
+        // Show manual input for cameras
+        document.getElementById('device-list').style.display = 'none';
+        document.getElementById('manual-ip-input').style.display = 'block';
+        return;
+      }
+
+      closeDeviceManager();
+      document.getElementById('sensor-placeholder').style.display = 'none';
+      document.getElementById('live-sensors').style.display = 'grid';
+
+      alert(`✅ Connected to ${name}`);
+
+      // Start Simulating Data Stream
+      startSensorStream();
+    }
+
+    function connectManualDevice() {
+      const url = document.getElementById('camera-url').value;
+      if (!url) { alert("Please enter a valid URL"); return; }
+
+      // Try to set CCTV feed to this URL
+      const video = document.getElementById('cctv-feed');
+      video.srcObject = null; // Clear stream
+      video.src = url; // Set generic URL (mjpeg/mp4)
+      video.play().catch(e => console.log("Stream play error (might need CORS/Auth):", e));
+
+      closeDeviceManager();
+      alert(`✅ Connected to Camera at ${url}`);
+
+      document.getElementById('security-log').innerHTML = `<div class="log-item" style="color:#7ecb35;">✅ LIVE: ${url}</div>` + document.getElementById('security-log').innerHTML;
+    }
+
+    let sensorInterval = null;
+    function startSensorStream() {
+      if (sensorInterval) clearInterval(sensorInterval);
+
+      sensorInterval = setInterval(() => {
+        // Sim random fluctuations
+        const moist = 55 + Math.floor(Math.random() * 5);
+        const temp = 28 + Math.random().toFixed(1);
+
+        // Sim NPK data
+        const n = 180 + Math.floor(Math.random() * 10);
+        const p = 22 + Math.floor(Math.random() * 3);
+        const k = 260 + Math.floor(Math.random() * 10);
+
+        // Update Widgets
+        document.getElementById('live-moisture').textContent = `${moist}%`;
+        document.getElementById('live-temp').textContent = `${temp}°C`;
+        document.getElementById('live-npk').textContent = `N:${n} P:${p} K:${k}`;
+
+        // Auto-update Soil Inputs (Integration)
+        if (document.getElementById('soil-n')) {
+          document.getElementById('soil-n').value = n;
+          document.getElementById('soil-p').value = p;
+          document.getElementById('soil-k').value = k;
+          updateSoilMeters(); // Trigger re-calc
+        }
+
+      }, 2000);
+    }
+
     // ===== AI CHATBOT =====
     const aiResponses = {
-      'yellow': `🌽 **Yellow Corn Leaves — Diagnosis**\n\nYellow leaves in corn typically indicate:\n\n1. **Nitrogen deficiency** (most common) — yellowing starts from leaf tip and progresses inward on older leaves. Apply Urea @ 30kg/acre as top dressing immediately.\n\n2. **Sulfur deficiency** — yellowing on young leaves first. Apply Ammonium Sulfate @ 20kg/acre.\n\n3. **Corn Streak Virus** — if yellowing has striped pattern, it's virus-spread by leafhoppers. Remove affected plants and control insects with Imidacloprid.\n\n💡 **Quick Test:** If oldest (bottom) leaves are yellow → Nitrogen. If newest (top) leaves are yellow → likely Sulfur or viral.`,
-
-      'sell': `📈 **Best Time to Sell Wheat — AI Analysis**\n\nBased on current market data:\n\n✅ **Current Price:** ₹2,150/quintal (up 4.2% this week)\n📊 **7-day forecast:** +8–12% expected (export demand spike)\n\n**My recommendation:**\n- Sell 30–40% of your stock NOW to lock in current prices\n- Hold the remaining 60% for 7–10 days for potential price peak\n- Set a price alert at ₹2,350/quintal as your target sell price\n\n⚠️ **Risk:** If rainfall disrupts transport routes next week, prices may drop 5–7%. Selling some now hedges that risk.`,
-
-      'water': `💧 **Soybean Water Requirements**\n\nSoybean needs approximately:\n\n• **Total season:** 450–700mm of water\n• **Per week (vegetative):** 25–30mm\n• **Per week (flowering/pod-fill):** 40–50mm ← most critical\n• **Per week (maturity):** 20–25mm (reduce now)\n\n**Smart Irrigation Schedule:**\n1. Irrigate every 7–10 days in dry weather\n2. Never irrigate within 24 hours of rain forecast\n3. Use drip irrigation — saves 35% water vs flood\n4. Soil should be moist at 6-inch depth, not waterlogged\n\n💡 **Water stress at flowering = 20–30% yield loss.** Protect this window!`,
-
-      'aphid': `🐛 **Organic Aphid Control Methods**\n\nHere are proven organic strategies:\n\n**Immediate Actions:**\n1. **Neem Oil spray** — mix 5ml/L water + 2ml dish soap. Spray every 5 days for 3 weeks\n2. **Garlic-chilli extract** — blend 100g garlic + 10 chillies in 1L water. Dilute 1:10 and spray\n3. **Strong water jet** — knocks aphids off plants physically (works for small infestations)\n\n**Biological Control:**\n4. **Release lady beetles** (ladybugs) — 1 lady beetle eats 50–200 aphids/day\n5. **Attract lacewings** — plant marigolds and dill nearby\n\n**Threshold:** Only spray when you count >20 aphids per leaf on 20%+ of plants. Below this, natural predators handle it.`,
-
-      'fertilizer': `🌧️ **Pre-Monsoon Fertilizer Guide**\n\nApply these **before first monsoon rains (2–3 weeks prior):**\n\n**Basal Application:**\n• DAP (Di-Ammonium Phosphate) @ 50kg/acre — provides P for root development\n• MOP (Muriate of Potash) @ 25kg/acre — improves disease resistance\n• FYM/Compost @ 2 tons/acre — improves soil structure and water retention\n\n**Avoid applying:**\n• ❌ Urea before monsoon — heavy rain leaches nitrogen. Apply in 2 splits during/after monsoon\n\n**Timing tip:** Apply basal dose, then lightly plow/mix into soil 2–3 days before expected rain for best uptake.`,
-
-      'ph': `🌾 **Soil pH 6.8 for Rice — Assessment**\n\nIdeal pH for rice: **6.0–7.0**\n\n✅ **Your pH of 6.8 is EXCELLENT for rice!** This is right in the sweet spot.\n\nAt pH 6.8:\n• Iron and manganese availability is optimal for rice\n• Phosphorus uptake is near maximum\n• Zinc is adequately available (rice's most common deficiency)\n\n**What to watch:**\n• If your field stays flooded for 4+ weeks, pH naturally drops to 6.5–7.0 due to anaerobic conditions — this is normal and beneficial for rice\n• Monitor for Zinc deficiency (brown spots on young leaves) — apply Zinc Sulphate @ 10kg/acre as preventive\n\n🎉 No pH adjustment needed — your soil is rice-ready!`,
-
-      'blight': `🍅 **Corn Leaf Blight Treatment**\n\n**Northern Corn Leaf Blight (NCLB):**\n\n**Symptoms to confirm:** Long, cigar-shaped grey-green lesions (2.5–15cm) on leaves, starting from lower canopy.\n\n**Treatment:**\n1. Apply **Propiconazole 25% EC** @ 1ml/L or **Azoxystrobin 23% SC** @ 1ml/L\n2. Spray during early morning or evening (avoid hot afternoon)\n3. Repeat after 14 days if pressure continues\n4. Add a spreader-sticker to improve fungicide adhesion\n\n**Cultural practices:**\n• Remove crop debris after harvest — NCLB survives in old corn residue\n• Plant resistant hybrids next season (look for Ht1/Ht2 resistance genes)\n• Avoid dense planting — improve airflow\n\n⚠️ If >50% of leaf area is affected before tasseling, yield loss can reach 30–50%.`,
-
-      'default': `🌾 **FarmPulse AI Response**\n\nThank you for your question! Based on my agricultural knowledge base:\n\nI understand you're asking about a common farming challenge. Here's what I recommend:\n\n1. **Monitor regularly** — check your crops every 2–3 days for early signs of stress\n2. **Document observations** — take dated photos of any unusual symptoms\n3. **Test before treating** — confirm the issue before applying pesticides or fertilizers\n4. **Consider weather** — temperature and humidity heavily influence plant health\n\nCould you describe your specific crop, symptoms, or issue in more detail? I can give you a more precise recommendation with specifics like:\n- Which crop is affected?\n- What do the symptoms look like?\n- Which part of the plant is affected?\n- How many acres/plants are showing symptoms?`
+      'en-IN': {
+        'yellow': `🌽 **Yellow Corn Leaves — Diagnosis**\n\nYellow leaves in corn typically indicate:\n\n1. **Nitrogen deficiency** (most common) — yellowing starts from leaf tip and progresses inward.\n2. **Sulfur deficiency** — yellowing on young leaves first.\n\n💡 **Quick Test:** If oldest leaves are yellow → Nitrogen. Apply Urea @ 30kg/acre.`,
+        'sell': `📈 **Best Time to Sell Wheat**\n\n✅ **Current Price:** ₹2,150/quintal (up 4.2%)\n\n**Recommendation:**\n- Sell 30–40% NOW.\n- Hold the rest for 10 days.\n- Target price: ₹2,350/quintal.`,
+        'default': `🌾 **FarmPulse "AI Suggests"**\n\nI can help you in **English, Hindi, Telugu or Tamil**.\n\nAsk me about:\n- Crop diseases 🦠\n- Market prices 💰\n- Fertilizer tips 🌿\n\nPlease select your language above ↗️`
+      },
+      'hi-IN': {
+        'yellow': `🌽 **मक्का की पीली पत्तियां — निदान**\n\nमक्का में पीली पत्तियों का मतलब है:\n\n1. **नाइट्रोजन की कमी** (सबसे आम) — पीलापन पत्ती की नोक से शुरू होता है।\n2. **सल्फर की कमी** — नई पत्तियों पर पीलापन।\n\n💡 **सुझाव:** यदि पुरानी पत्तियां पीली हैं → यूरिया @ 30 किग्रा/एकड़ डालें।`,
+        'sell': `📈 **गेहूं बेचने का सही समय**\n\n✅ **मौजूदा भाव:** ₹2,150/क्विंटल (4.2% ऊपर)\n\n**सलाह:**\n- 30-40% अभी बेचें।\n- बाकी 10 दिन रोककर रखें।\n- लक्ष्य भाव: ₹2,350/क्विंटल।`,
+        'default': `🌾 **FarmPulse "AI सुझाव"**\n\nनमस्ते! मैं आपकी खेती में मदद कर सकता हूँ।\n\nमुझसे पूछें:\n- फसल के रोग 🦠\n- मंडी भाव 💰\n- खाद और उर्वरक 🌿\n\nकृपया ऊपर अपनी भाषा चुनें ↗️`
+      },
+      'te-IN': {
+        'yellow': `🌽 **మొక్కజొన్న ఆకులు పసుపు రంగు — నివారణ**\n\nఆకులు పసుపు రంగులోకి మారడానికి కారణాలు:\n\n1. **నత్రజని లోపం** — ఆకు చివర నుండి పసుపు రంగు మొదలవుతుంది.\n2. **సల్ఫర్ లోపం** — లేత ఆకులు పసుపు రంగులో ఉంటాయి.\n\n💡 **సలహా:** ముదురు ఆకులు పసుపు రంగులో ఉంటే → ఎకరాకు 30 కేజీల యూరియా వేయండి.`,
+        'sell': `📈 **గోధుమలు అమ్మడానికి సరైన సమయం**\n\n✅ **ప్రస్తుత ధర:** ₹2,150/ క్వింటాల్\n\n**సలహా:**\n- 30-40% ఇప్పుడే అమ్మండి.\n- మిగిలినవి 10 రోజులు ఆగండి.\n- లక్ష్య ధర: ₹2,350.`,
+        'default': `🌾 **FarmPulse "AI సలహా"**\n\nనమస్కారం! మీ పంటకు సంబంధించిన సందేహాలను నన్ను అడగండి.\n\n- పంట తెగుళ్లు 🦠\n- మార్కెట్ ధరలు 💰\n- ఎరువుల సలహాలు 🌿\n\nదయచేసి పైన మీ భాషను ఎంచుకోండి ↗️`
+      },
+      'ta-IN': { // Copy of English/Simple placeholder for now as requested user focused on Telugu/Hindi
+        'default': `🌾 **FarmPulse AI (Tamil)**\n\nVanakkam! Ask about crops, prices, and diseases.`
+      }
     };
 
     function getAIResponse(msg) {
+      const lang = document.getElementById('voice-lang')?.value || 'en-IN';
       const m = msg.toLowerCase();
-      if (m.includes('yellow') || m.includes('nitrogen')) return aiResponses['yellow'];
-      if (m.includes('sell') || m.includes('price') || m.includes('market')) return aiResponses['sell'];
-      if (m.includes('water') || m.includes('irrigat')) return aiResponses['water'];
-      if (m.includes('aphid') || m.includes('organic') || m.includes('pest')) return aiResponses['aphid'];
-      if (m.includes('fertilizer') || m.includes('monsoon') || m.includes('npk')) return aiResponses['fertilizer'];
-      if (m.includes('ph') || m.includes('rice') || m.includes('6.8')) return aiResponses['ph'];
-      if (m.includes('blight') || m.includes('rust') || m.includes('disease') || m.includes('corn leaf')) return aiResponses['blight'];
-      return aiResponses['default'];
+
+      // Select dictionary based on lang
+      const dict = aiResponses[lang] || aiResponses['en-IN'];
+
+      // Simple keyword matching for demo
+      if (m.includes('yellow') || m.includes('corn') || m.includes('leaf') || m.includes('पत्ती') || m.includes('ఆకు')) return dict['yellow'] || dict['default'];
+      if (m.includes('sell') || m.includes('price') || m.includes('market') || m.includes('भाव') || m.includes('ధర')) return dict['sell'] || dict['default'];
+
+      return dict['default'];
     }
 
     function formatMsg(text) {
@@ -2112,9 +3155,61 @@
     }
 
     // Init
+    // Force reset inputs to 0 to prevent browser caching old values
+    document.querySelectorAll('.input-field[type="number"]').forEach(input => input.value = 0);
+
+    calcProfit();
     calcProfit();
     updateSoilMeters();
+
+    // ===== SECURITY LOGIN SYSTEM =====
+    let ownerDetails = null; // { name: "Ravi", phone: "919876543210" }
+
+    function checkSecurityLogin() {
+      if (ownerDetails) return true;
+      document.getElementById('security-login').style.display = 'flex';
+      return false;
+    }
+
+    function saveSecurityDetails() {
+      const name = document.getElementById('sec-name').value;
+      const phone = document.getElementById('sec-phone').value;
+
+      if (!name || !phone) { alert("Please enter both Name and Phone Number."); return; }
+
+      ownerDetails = { name, phone };
+      document.getElementById('security-login').style.display = 'none';
+      alert(`✅ Security System Armed for ${name}`);
+
+      // Auto-start CCTV if this was triggered by startCCTV
+      startCCTV();
+    }
   </script>
+
+  <!-- SECURITY LOGIN MODEL -->
+  <div id="security-login"
+    style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:10001;align-items:center;justify-content:center;">
+    <div class="card"
+      style="width:90%;max-width:400px;text-align:center;border:1px solid var(--lime);box-shadow:0 0 30px rgba(126, 203, 53, 0.2);">
+      <div style="font-size:3rem;margin-bottom:10px;">🛡️</div>
+      <div class="card-title">Security Setup</div>
+      <div class="card-sub">Enter owner details to arm the system.</div>
+      <div class="divider"></div>
+
+      <div style="text-align:left;margin-bottom:15px;">
+        <label style="font-size:0.75rem;color:rgba(255,255,255,0.6);">Owner Name</label>
+        <input type="text" id="sec-name" placeholder="e.g. Ravi Kumar" class="input-field" style="margin-top:5px;">
+      </div>
+
+      <div style="text-align:left;margin-bottom:20px;">
+        <label style="font-size:0.75rem;color:rgba(255,255,255,0.6);">WhatsApp Number (with Country Code)</label>
+        <input type="number" id="sec-phone" placeholder="e.g. 919876543210" class="input-field" style="margin-top:5px;">
+      </div>
+
+      <button class="btn btn-primary" onclick="saveSecurityDetails()"
+        style="width:100%;justify-content:center;padding:12px;">✅ Save & Arm System</button>
+    </div>
+  </div>
 </body>
 
 </html>

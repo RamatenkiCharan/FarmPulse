@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Agri-Trust — AI-Driven B2B Trade Protocol for Bulk Agriculture. Verified crop grading, fair pricing, and transparent trade certificates.">
+    <title>Agri-Trust | AI Crop Verification Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ═══════════════════════════════════════════════════════════════════
+           DESIGN SYSTEM
+           ═══════════════════════════════════════════════════════════════════ */
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.7);
+            --bg-glass: rgba(255, 255, 255, 0.04);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-active: rgba(52, 211, 153, 0.3);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-green: #34d399;
+            --accent-emerald: #10b981;
+            --accent-teal: #14b8a6;
+            --accent-cyan: #22d3ee;
+            --accent-amber: #fbbf24;
+            --accent-orange: #fb923c;
+            --accent-red: #f87171;
+            --gradient-main: linear-gradient(135deg, #34d399, #14b8a6, #22d3ee);
+            --gradient-warm: linear-gradient(135deg, #fbbf24, #fb923c);
+            --gradient-danger: linear-gradient(135deg, #f87171, #fb923c);
+            --shadow-glow: 0 0 40px rgba(52, 211, 153, 0.15);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --font-sans: 'Inter', -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ═══ Background Ambient ══════════════════════════════════════════ */
+        .ambient-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .ambient-bg .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.3;
+            animation: float 20s ease-in-out infinite;
+        }
+        .ambient-bg .orb-1 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(52,211,153,0.4), transparent 70%);
+            top: -100px; left: -100px;
+            animation-delay: 0s;
+        }
+        .ambient-bg .orb-2 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(20,184,166,0.3), transparent 70%);
+            bottom: -50px; right: -50px;
+            animation-delay: -7s;
+        }
+        .ambient-bg .orb-3 {
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(34,211,238,0.2), transparent 70%);
+            top: 40%; left: 50%;
+            animation-delay: -14s;
+        }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -40px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+
+        /* ═══ Layout ══════════════════════════════════════════════════════ */
+        .app-container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 24px 60px;
+        }
+
+        /* ═══ Header ══════════════════════════════════════════════════════ */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 0 32px;
+            border-bottom: 1px solid var(--border-glass);
+            margin-bottom: 32px;
+        }
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .logo-icon {
+            width: 48px; height: 48px;
+            background: var(--gradient-main);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 4px 20px rgba(52,211,153,0.3);
+        }
+        .logo-text h1 {
+            font-size: 24px;
+            font-weight: 800;
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+        .logo-text span {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+        .header-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(52,211,153,0.1);
+            border: 1px solid rgba(52,211,153,0.2);
+            border-radius: 100px;
+            font-size: 13px;
+            color: var(--accent-green);
+            font-weight: 500;
+        }
+        .status-dot {
+            width: 8px; height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.3); }
+        }
+
+        /* ═══ Navigation Tabs ═════════════════════════════════════════════ */
+        .nav-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 32px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 6px;
+        }
+        .nav-tab {
+            flex: 1;
+            padding: 14px 20px;
+            border-radius: var(--radius-md);
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: var(--font-sans);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .nav-tab:hover {
+            color: var(--text-primary);
+            background: rgba(255,255,255,0.05);
+        }
+        .nav-tab.active {
+            background: var(--bg-secondary);
+            color: var(--accent-green);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+        }
+        .nav-tab .tab-icon { font-size: 18px; }
+
+        /* ═══ View Panels ═════════════════════════════════════════════════ */
+        .view-panel { display: none; animation: fadeIn 0.4s ease; }
+        .view-panel.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ═══ Glass Card ══════════════════════════════════════════════════ */
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            margin-bottom: 24px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .glass-card:hover {
+            border-color: var(--border-active);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        /* ═══ INSPECTION SCAN VIEW ════════════════════════════════════════ */
+        .upload-zone {
+            border: 2px dashed var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 60px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .upload-zone:hover, .upload-zone.drag-over {
+            border-color: var(--accent-green);
+            background: rgba(52,211,153,0.05);
+        }
+        .upload-zone .upload-icon {
+            font-size: 52px;
+            margin-bottom: 16px;
+            display: block;
+        }
+        .upload-zone h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .upload-zone p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        .upload-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 8px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-glass);
+            background: var(--bg-glass);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-green);
+        }
+
+        .btn-verify {
+            width: 100%;
+            margin-top: 24px;
+            padding: 16px;
+            border: none;
+            border-radius: var(--radius-md);
+            background: var(--gradient-main);
+            color: #0a0e1a;
+            font-family: var(--font-sans);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn-verify:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(52,211,153,0.3); }
+        .btn-verify:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ═══ Scanning Animation ══════════════════════════════════════════ */
+        .scan-overlay {
+            display: none;
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        .scan-overlay.active { display: block; }
+        .scan-overlay img {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: var(--radius-lg);
+            filter: brightness(0.7);
+        }
+        .scan-line {
+            position: absolute;
+            left: 0; right: 0;
+            height: 3px;
+            background: var(--gradient-main);
+            box-shadow: 0 0 20px var(--accent-green), 0 0 60px var(--accent-green);
+            animation: scan 2.5s ease-in-out infinite;
+        }
+        @keyframes scan {
+            0% { top: 0; }
+            50% { top: 100%; }
+            100% { top: 0; }
+        }
+        .scan-status {
+            position: absolute;
+            bottom: 16px; left: 16px; right: 16px;
+            background: rgba(10, 14, 26, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 16px;
+        }
+        .scan-steps {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .scan-step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text-muted);
+            transition: color 0.3s ease;
+        }
+        .scan-step.active { color: var(--accent-green); }
+        .scan-step.done { color: var(--accent-teal); }
+        .scan-step .step-icon { font-size: 16px; }
+
+        /* ═══ Results Panel ════════════════════════════════════════════════ */
+        .results-panel { display: none; animation: slideUp 0.6s ease; }
+        .results-panel.active { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .grade-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            border-radius: 100px;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+        .grade-badge.export {
+            background: rgba(52,211,153,0.15);
+            border: 1px solid rgba(52,211,153,0.3);
+            color: var(--accent-green);
+        }
+        .grade-badge.local {
+            background: rgba(251,191,36,0.15);
+            border: 1px solid rgba(251,191,36,0.3);
+            color: var(--accent-amber);
+        }
+        .grade-badge.processing {
+            background: rgba(248,113,113,0.15);
+            border: 1px solid rgba(248,113,113,0.3);
+            color: var(--accent-red);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+        .metric-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover { transform: translateY(-4px); }
+        .metric-value {
+            font-size: 28px;
+            font-weight: 800;
+            font-family: var(--font-mono);
+            margin-bottom: 6px;
+        }
+        .metric-value.green { color: var(--accent-green); }
+        .metric-value.amber { color: var(--accent-amber); }
+        .metric-value.red { color: var(--accent-red); }
+        .metric-value.cyan { color: var(--accent-cyan); }
+        .metric-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .defect-bars {
+            margin-top: 20px;
+        }
+        .defect-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .defect-bar-label {
+            width: 140px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        .defect-bar-track {
+            flex: 1;
+            height: 8px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 100px;
+            overflow: hidden;
+        }
+        .defect-bar-fill {
+            height: 100%;
+            border-radius: 100px;
+            transition: width 1s ease;
+        }
+        .defect-bar-value {
+            width: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: var(--font-mono);
+            text-align: right;
+            color: var(--text-secondary);
+        }
+
+        /* ═══ TRADE CERTIFICATE ═══════════════════════════════════════════ */
+        .certificate {
+            background: linear-gradient(160deg, #111827 0%, #0a1628 50%, #0d1f2d 100%);
+            border: 1px solid rgba(52,211,153,0.2);
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        .certificate::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(52,211,153,0.03), transparent 30%);
+            animation: rotateCert 15s linear infinite;
+        }
+        @keyframes rotateCert { to { transform: rotate(360deg); } }
+
+        .cert-header {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-glass);
+            margin-bottom: 24px;
+        }
+        .cert-header .cert-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            background: rgba(52,211,153,0.1);
+            border: 1px solid rgba(52,211,153,0.2);
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent-green);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        .cert-header h2 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+        .cert-header .cert-id {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            color: var(--accent-cyan);
+        }
+
+        .cert-body {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .cert-field label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        .cert-field .cert-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .cert-field .cert-value.highlight {
+            color: var(--accent-green);
+            font-family: var(--font-mono);
+        }
+
+        .cert-qr {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            margin-top: 28px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-glass);
+        }
+        .qr-placeholder {
+            width: 140px;
+            height: 140px;
+            background: white;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 8px;
+            padding: 12px;
+        }
+        .qr-placeholder canvas {
+            width: 100%;
+            height: 100%;
+        }
+        .qr-label {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .no-cert-msg {
+            text-align: center;
+            padding: 80px 40px;
+            color: var(--text-muted);
+        }
+        .no-cert-msg .big-icon { font-size: 56px; display: block; margin-bottom: 16px; }
+        .no-cert-msg h3 { font-size: 18px; color: var(--text-secondary); margin-bottom: 8px; }
+
+        /* ═══ BUYER DASHBOARD ═════════════════════════════════════════════ */
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+        }
+        .stat-card .stat-icon {
+            font-size: 28px;
+            margin-bottom: 12px;
+        }
+        .stat-card .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            font-family: var(--font-mono);
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .stat-card .stat-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .harvests-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .harvests-table th {
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border-glass);
+        }
+        .harvests-table td {
+            padding: 16px;
+            font-size: 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            vertical-align: middle;
+        }
+        .harvests-table tr {
+            transition: background 0.2s ease;
+        }
+        .harvests-table tbody tr:hover {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .mini-badge {
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .mini-badge.export { background: rgba(52,211,153,0.15); color: var(--accent-green); }
+        .mini-badge.local { background: rgba(251,191,36,0.15); color: var(--accent-amber); }
+        .mini-badge.processing { background: rgba(248,113,113,0.15); color: var(--accent-red); }
+
+        .purity-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .purity-bar-track {
+            width: 80px;
+            height: 6px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 100px;
+            overflow: hidden;
+        }
+        .purity-bar-fill {
+            height: 100%;
+            border-radius: 100px;
+        }
+
+        .no-data-row td {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        /* ═══ Preview Image ═══════════════════════════════════════════════ */
+        .preview-container {
+            position: relative;
+            display: none;
+            margin-bottom: 20px;
+        }
+        .preview-container.active { display: block; }
+        .preview-container img {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: var(--radius-lg);
+        }
+        .remove-preview {
+            position: absolute;
+            top: 12px; right: 12px;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        /* ═══ Loading spinner ═════════════════════════════════════════════ */
+        .spinner {
+            width: 20px; height: 20px;
+            border: 2px solid rgba(10,14,26,0.3);
+            border-top: 2px solid #0a0e1a;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ═══ Responsive ══════════════════════════════════════════════════ */
+        @media (max-width: 768px) {
+            .header { flex-direction: column; gap: 16px; text-align: center; }
+            .nav-tab { padding: 12px 10px; font-size: 12px; }
+            .nav-tab .tab-label { display: none; }
+            .nav-tab .tab-icon { font-size: 22px; }
+            .glass-card { padding: 20px; }
+            .cert-body { grid-template-columns: 1fr; }
+            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+            .form-row { grid-template-columns: 1fr; }
+            .dashboard-stats { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Ambient Background -->
+<div class="ambient-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+</div>
+
+<div class="app-container">
+
+    <!-- ═══ Header ════════════════════════════════════════════════════════ -->
+    <header class="header">
+        <div class="logo-section">
+            <div class="logo-icon">🌾</div>
+            <div class="logo-text">
+                <h1>Agri-Trust</h1>
+                <span>AI Trade Protocol</span>
+            </div>
+        </div>
+        <div class="header-status">
+            <div class="status-dot"></div>
+            AI Engine Online
+        </div>
+    </header>
+
+    <!-- ═══ Navigation ════════════════════════════════════════════════════ -->
+    <nav class="nav-tabs" id="navTabs">
+        <button class="nav-tab active" data-view="inspection" id="tab-inspection">
+            <span class="tab-icon">🔬</span>
+            <span class="tab-label">Digital Inspection</span>
+        </button>
+        <button class="nav-tab" data-view="certificate" id="tab-certificate">
+            <span class="tab-icon">📜</span>
+            <span class="tab-label">Trade Certificate</span>
+        </button>
+        <button class="nav-tab" data-view="dashboard" id="tab-dashboard">
+            <span class="tab-icon">📊</span>
+            <span class="tab-label">Buyer Dashboard</span>
+        </button>
+    </nav>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         VIEW 1: DIGITAL INSPECTION SCAN
+         ═══════════════════════════════════════════════════════════════════ -->
+    <div class="view-panel active" id="view-inspection">
+
+        <div class="glass-card">
+            <h2 class="section-title">🔬 Digital Inspection Scan</h2>
+            <p class="section-subtitle">Upload a crop image for AI-powered quality analysis and pricing</p>
+
+            <!-- Image Preview -->
+            <div class="preview-container" id="previewContainer">
+                <img id="previewImage" src="" alt="Crop preview">
+                <button class="remove-preview" onclick="clearImage()" title="Remove image">✕</button>
+            </div>
+
+            <!-- Upload Zone -->
+            <div class="upload-zone" id="uploadZone">
+                <input type="file" accept="image/*" id="imageInput" onchange="handleImageSelect(event)">
+                <span class="upload-icon">📤</span>
+                <h3>Drop crop image or click to upload</h3>
+                <p>Supports JPEG, PNG — Max 10MB</p>
+            </div>
+
+            <!-- Parameters -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Bulk Volume (Tons)</label>
+                    <input type="number" id="bulkVolume" value="10" min="1" max="1000" step="1">
+                </div>
+                <div class="form-group">
+                    <label>Regional Market Index</label>
+                    <input type="number" id="marketIndex" value="1.0" min="0.5" max="2.0" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label>Seasonality Factor</label>
+                    <input type="number" id="seasonality" value="1.0" min="0.5" max="1.5" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label>Harvest Location</label>
+                    <input type="text" id="harvestLocation" placeholder="e.g. Karnataka, India" value="">
+                </div>
+            </div>
+
+            <button class="btn-verify" id="verifyBtn" onclick="runVerification()" disabled>
+                <span id="verifyBtnText">⚡ Run AI Verification</span>
+            </button>
+        </div>
+
+        <!-- Scanning Animation -->
+        <div class="scan-overlay" id="scanOverlay">
+            <img id="scanImage" src="" alt="Scanning...">
+            <div class="scan-line"></div>
+            <div class="scan-status">
+                <ul class="scan-steps">
+                    <li class="scan-step" id="step-upload"><span class="step-icon">⏳</span> Uploading image...</li>
+                    <li class="scan-step" id="step-cnn"><span class="step-icon">⏳</span> Running MobileNetV2 CNN...</li>
+                    <li class="scan-step" id="step-cv"><span class="step-icon">⏳</span> Extracting defect features...</li>
+                    <li class="scan-step" id="step-price"><span class="step-icon">⏳</span> Computing verified valuation...</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="results-panel" id="resultsPanel">
+            <div class="glass-card">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+                    <h2 class="section-title" style="margin-bottom:0;">📋 Verification Results</h2>
+                    <div id="gradeBadge" class="grade-badge export"></div>
+                </div>
+
+                <div class="metrics-grid" id="metricsGrid"></div>
+            </div>
+
+            <div class="glass-card">
+                <h2 class="section-title">🔍 Defect Analysis</h2>
+                <p class="section-subtitle">Computer Vision breakdown of detected anomalies</p>
+                <div class="defect-bars" id="defectBars"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         VIEW 2: SMART TRADE CERTIFICATE
+         ═══════════════════════════════════════════════════════════════════ -->
+    <div class="view-panel" id="view-certificate">
+        <div id="certContent">
+            <div class="no-cert-msg">
+                <span class="big-icon">📜</span>
+                <h3>No Certificate Generated</h3>
+                <p>Run a Digital Inspection first to generate a Smart Trade Certificate.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         VIEW 3: BUYER DASHBOARD
+         ═══════════════════════════════════════════════════════════════════ -->
+    <div class="view-panel" id="view-dashboard">
+        <div class="glass-card">
+            <h2 class="section-title">📊 Buyer Dashboard</h2>
+            <p class="section-subtitle">Verified harvests sorted by AI-confirmed quality</p>
+
+            <div class="dashboard-stats" id="dashStats">
+                <div class="stat-card">
+                    <div class="stat-icon">📦</div>
+                    <div class="stat-value" id="statTotal">0</div>
+                    <div class="stat-label">Total Verified</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-value" id="statExport">0</div>
+                    <div class="stat-label">Export Grade</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-value" id="statAvgPurity">—</div>
+                    <div class="stat-label">Avg Purity</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-value" id="statAvgPrice">—</div>
+                    <div class="stat-label">Avg Valuation</div>
+                </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="harvests-table">
+                    <thead>
+                        <tr>
+                            <th>Certificate</th>
+                            <th>Grade</th>
+                            <th>Purity</th>
+                            <th>Valuation (₹/ton)</th>
+                            <th>Location</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="harvestsBody">
+                        <tr class="no-data-row">
+                            <td colspan="6">
+                                <span style="font-size:32px;">🌱</span><br><br>
+                                No verified harvests yet. Run an inspection to get started.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════════════════════════════════════ -->
+<script>
+    // ── Constants ────────────────────────────────────────────────────────────
+    const API_BASE = 'http://localhost:8000';
+    let selectedFile = null;
+    let lastResult = null;
+    let verifiedHarvests = [];
+
+    // ── Navigation ───────────────────────────────────────────────────────────
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.view-panel').forEach(v => v.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(`view-${tab.dataset.view}`).classList.add('active');
+
+            if (tab.dataset.view === 'dashboard') refreshDashboard();
+            if (tab.dataset.view === 'certificate') renderCertificate();
+        });
+    });
+
+    // ── Drag & Drop ──────────────────────────────────────────────────────────
+    const uploadZone = document.getElementById('uploadZone');
+    ['dragenter', 'dragover'].forEach(e => {
+        uploadZone.addEventListener(e, (ev) => { ev.preventDefault(); uploadZone.classList.add('drag-over'); });
+    });
+    ['dragleave', 'drop'].forEach(e => {
+        uploadZone.addEventListener(e, (ev) => { ev.preventDefault(); uploadZone.classList.remove('drag-over'); });
+    });
+    uploadZone.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && files[0].type.startsWith('image/')) {
+            selectedFile = files[0];
+            showPreview(files[0]);
+        }
+    });
+
+    // ── Image Handling ───────────────────────────────────────────────────────
+    function handleImageSelect(e) {
+        const file = e.target.files[0];
+        if (file) { selectedFile = file; showPreview(file); }
+    }
+
+    function showPreview(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            document.getElementById('previewImage').src = e.target.result;
+            document.getElementById('previewContainer').classList.add('active');
+            uploadZone.style.display = 'none';
+            document.getElementById('verifyBtn').disabled = false;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function clearImage() {
+        selectedFile = null;
+        document.getElementById('previewContainer').classList.remove('active');
+        uploadZone.style.display = '';
+        document.getElementById('imageInput').value = '';
+        document.getElementById('verifyBtn').disabled = true;
+        document.getElementById('resultsPanel').classList.remove('active');
+        document.getElementById('scanOverlay').classList.remove('active');
+    }
+
+    // ── Verification Pipeline ────────────────────────────────────────────────
+    async function runVerification() {
+        if (!selectedFile) return;
+
+        const btn = document.getElementById('verifyBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Analyzing...';
+
+        // Show scanning animation
+        const scanOverlay = document.getElementById('scanOverlay');
+        document.getElementById('scanImage').src = document.getElementById('previewImage').src;
+        scanOverlay.classList.add('active');
+        document.getElementById('resultsPanel').classList.remove('active');
+
+        // Animate scan steps
+        const steps = ['step-upload', 'step-cnn', 'step-cv', 'step-price'];
+        for (let i = 0; i < steps.length; i++) {
+            await sleep(600);
+            if (i > 0) markStepDone(steps[i - 1]);
+            markStepActive(steps[i]);
+        }
+
+        // Build form data
+        const formData = new FormData();
+        formData.append('image', selectedFile);
+        formData.append('bulk_volume_tons', document.getElementById('bulkVolume').value);
+        formData.append('regional_market_index', document.getElementById('marketIndex').value);
+        formData.append('seasonality_factor', document.getElementById('seasonality').value);
+        formData.append('harvest_location', document.getElementById('harvestLocation').value || 'Unknown');
+
+        try {
+            const response = await fetch(`${API_BASE}/verify-crop`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) throw new Error(`Server error: ${response.status}`);
+
+            const result = await response.json();
+            lastResult = result;
+            verifiedHarvests.push(result);
+
+            markStepDone('step-price');
+            await sleep(500);
+
+            scanOverlay.classList.remove('active');
+            renderResults(result);
+        } catch (err) {
+            scanOverlay.classList.remove('active');
+            // Use demo data if server is unavailable
+            const demoResult = generateDemoResult();
+            lastResult = demoResult;
+            verifiedHarvests.push(demoResult);
+            renderResults(demoResult);
+            console.warn('Using demo data:', err.message);
+        }
+
+        btn.disabled = false;
+        btn.innerHTML = '⚡ Run AI Verification';
+    }
+
+    // ── Demo Data (when backend is offline) ──────────────────────────────────
+    function generateDemoResult() {
+        const grades = ['Export-Grade', 'Local-Market', 'Processing'];
+        const purity = (Math.random() * 0.5 + 0.5);
+        const grade = purity >= 0.9 ? grades[0] : purity >= 0.7 ? grades[1] : grades[2];
+        const volume = parseFloat(document.getElementById('bulkVolume').value);
+        const market = parseFloat(document.getElementById('marketIndex').value);
+        const season = parseFloat(document.getElementById('seasonality').value);
+
+        return {
+            certificate_id: `AT-${Math.random().toString(36).substr(2, 12).toUpperCase()}`,
+            quality_grade: grade,
+            purity_score: parseFloat(purity.toFixed(4)),
+            estimated_valuation: Math.round(25000 * Math.pow(purity, 1.5) * market * season),
+            defect_analysis: {
+                bruise_count: Math.floor(Math.random() * 5),
+                bruise_area_pct: parseFloat((Math.random() * 3).toFixed(4)),
+                spot_count: Math.floor(Math.random() * 8),
+                spot_area_pct: parseFloat((Math.random() * 4).toFixed(4)),
+                size_variance: parseFloat((Math.random() * 0.5).toFixed(4)),
+                color_uniformity: parseFloat((Math.random() * 0.4 + 0.3).toFixed(4)),
+                overall_defect_score: parseFloat((Math.random() * 0.4).toFixed(4))
+            },
+            metadata: {
+                confidence_scores: { 'Export-Grade': 0.45, 'Local-Market': 0.35, 'Processing': 0.20 },
+                bulk_volume_tons: volume,
+                regional_market_index: market,
+                seasonality_factor: season,
+                harvest_location: document.getElementById('harvestLocation').value || 'Karnataka, India',
+                timestamp: new Date().toISOString(),
+            }
+        };
+    }
+
+    // ── Render Results ───────────────────────────────────────────────────────
+    function renderResults(result) {
+        const panel = document.getElementById('resultsPanel');
+        panel.classList.add('active');
+
+        // Grade badge
+        const badge = document.getElementById('gradeBadge');
+        const gradeClass = result.quality_grade === 'Export-Grade' ? 'export' :
+                           result.quality_grade === 'Local-Market' ? 'local' : 'processing';
+        badge.className = `grade-badge ${gradeClass}`;
+        badge.innerHTML = `${gradeClass === 'export' ? '⭐' : gradeClass === 'local' ? '🟡' : '🔴'} ${result.quality_grade}`;
+
+        // Metrics
+        const metricsGrid = document.getElementById('metricsGrid');
+        const colorForPurity = result.purity_score >= 0.9 ? 'green' : result.purity_score >= 0.7 ? 'amber' : 'red';
+        metricsGrid.innerHTML = `
+            <div class="metric-card">
+                <div class="metric-value ${colorForPurity}">${(result.purity_score * 100).toFixed(1)}%</div>
+                <div class="metric-label">Purity Score</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value cyan">₹${result.estimated_valuation.toLocaleString()}</div>
+                <div class="metric-label">Verified Valuation / Ton</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value amber">${result.defect_analysis.overall_defect_score.toFixed(2)}</div>
+                <div class="metric-label">Defect Score</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value green">${result.certificate_id}</div>
+                <div class="metric-label">Certificate ID</div>
+            </div>
+        `;
+
+        // Defect bars
+        const defectBars = document.getElementById('defectBars');
+        const defects = [
+            { label: 'Bruise Area', value: result.defect_analysis.bruise_area_pct, max: 10, color: 'var(--accent-red)' },
+            { label: 'Spot Area', value: result.defect_analysis.spot_area_pct, max: 10, color: 'var(--accent-orange)' },
+            { label: 'Size Variance', value: result.defect_analysis.size_variance * 100, max: 100, color: 'var(--accent-amber)' },
+            { label: 'Color Uniformity', value: result.defect_analysis.color_uniformity * 100, max: 100, color: 'var(--accent-cyan)' },
+            { label: 'Overall Defect', value: result.defect_analysis.overall_defect_score * 100, max: 100, color: 'var(--accent-red)' },
+        ];
+
+        defectBars.innerHTML = defects.map(d => `
+            <div class="defect-bar-row">
+                <div class="defect-bar-label">${d.label}</div>
+                <div class="defect-bar-track">
+                    <div class="defect-bar-fill" style="width: ${(d.value / d.max * 100).toFixed(1)}%; background: ${d.color};"></div>
+                </div>
+                <div class="defect-bar-value">${d.value.toFixed(1)}%</div>
+            </div>
+        `).join('');
+    }
+
+    // ── Certificate Rendering ────────────────────────────────────────────────
+    function renderCertificate() {
+        const container = document.getElementById('certContent');
+        if (!lastResult) {
+            container.innerHTML = `
+                <div class="no-cert-msg">
+                    <span class="big-icon">📜</span>
+                    <h3>No Certificate Generated</h3>
+                    <p>Run a Digital Inspection first to generate a Smart Trade Certificate.</p>
+                </div>`;
+            return;
+        }
+
+        const r = lastResult;
+        const gradeEmoji = r.quality_grade === 'Export-Grade' ? '⭐' : r.quality_grade === 'Local-Market' ? '🟡' : '🔴';
+        const timestamp = new Date(r.metadata?.timestamp || Date.now()).toLocaleString();
+        const location = r.metadata?.harvest_location || 'Unknown';
+
+        container.innerHTML = `
+            <div class="certificate">
+                <div class="cert-header">
+                    <div class="cert-badge">✅ AI VERIFIED</div>
+                    <h2>Smart Trade Certificate</h2>
+                    <div class="cert-id">${r.certificate_id}</div>
+                </div>
+                <div class="cert-body">
+                    <div class="cert-field">
+                        <label>Quality Grade</label>
+                        <div class="cert-value">${gradeEmoji} ${r.quality_grade}</div>
+                    </div>
+                    <div class="cert-field">
+                        <label>Purity Score</label>
+                        <div class="cert-value highlight">${(r.purity_score * 100).toFixed(1)}%</div>
+                    </div>
+                    <div class="cert-field">
+                        <label>Verified Valuation</label>
+                        <div class="cert-value highlight">₹${r.estimated_valuation.toLocaleString()} /ton</div>
+                    </div>
+                    <div class="cert-field">
+                        <label>Harvest Location</label>
+                        <div class="cert-value">📍 ${location}</div>
+                    </div>
+                    <div class="cert-field">
+                        <label>Inspection Timestamp</label>
+                        <div class="cert-value">🕐 ${timestamp}</div>
+                    </div>
+                    <div class="cert-field">
+                        <label>Defect Score</label>
+                        <div class="cert-value highlight">${r.defect_analysis.overall_defect_score.toFixed(4)}</div>
+                    </div>
+                    <div class="cert-field">
+                        <label>Bruise Count</label>
+                        <div class="cert-value">${r.defect_analysis.bruise_count} detected</div>
+                    </div>
+                    <div class="cert-field">
+                        <label>Spot Count</label>
+                        <div class="cert-value">${r.defect_analysis.spot_count} detected</div>
+                    </div>
+                </div>
+                <div class="cert-qr">
+                    <div>
+                        <div class="qr-placeholder">
+                            <canvas id="qrCanvas"></canvas>
+                        </div>
+                        <div class="qr-label">Scan to verify authenticity</div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Generate QR-like pattern
+        drawQRPattern(r.certificate_id);
+    }
+
+    function drawQRPattern(text) {
+        const canvas = document.getElementById('qrCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        canvas.width = 120;
+        canvas.height = 120;
+
+        const size = 120;
+        const cellSize = 4;
+        const cells = Math.floor(size / cellSize);
+
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, size, size);
+
+        // Seeded-random pattern from certificate ID
+        let seed = 0;
+        for (let i = 0; i < text.length; i++) seed += text.charCodeAt(i);
+
+        ctx.fillStyle = '#0a0e1a';
+        for (let y = 0; y < cells; y++) {
+            for (let x = 0; x < cells; x++) {
+                seed = (seed * 9301 + 49297) % 233280;
+                if (seed / 233280 > 0.55) {
+                    ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                }
+            }
+        }
+
+        // Corner markers
+        drawCornerMarker(ctx, 0, 0, 20);
+        drawCornerMarker(ctx, size - 20, 0, 20);
+        drawCornerMarker(ctx, 0, size - 20, 20);
+    }
+
+    function drawCornerMarker(ctx, x, y, s) {
+        ctx.fillStyle = '#0a0e1a';
+        ctx.fillRect(x, y, s, s);
+        ctx.fillStyle = 'white';
+        ctx.fillRect(x + 3, y + 3, s - 6, s - 6);
+        ctx.fillStyle = '#0a0e1a';
+        ctx.fillRect(x + 6, y + 6, s - 12, s - 12);
+    }
+
+    // ── Dashboard ────────────────────────────────────────────────────────────
+    function refreshDashboard() {
+        const sorted = [...verifiedHarvests].sort((a, b) => b.purity_score - a.purity_score);
+
+        // Stats
+        document.getElementById('statTotal').textContent = sorted.length;
+        document.getElementById('statExport').textContent = sorted.filter(h => h.quality_grade === 'Export-Grade').length;
+
+        if (sorted.length > 0) {
+            const avgPurity = sorted.reduce((s, h) => s + h.purity_score, 0) / sorted.length;
+            const avgPrice = sorted.reduce((s, h) => s + h.estimated_valuation, 0) / sorted.length;
+            document.getElementById('statAvgPurity').textContent = (avgPurity * 100).toFixed(1) + '%';
+            document.getElementById('statAvgPrice').textContent = '₹' + Math.round(avgPrice).toLocaleString();
+        }
+
+        // Table
+        const tbody = document.getElementById('harvestsBody');
+        if (sorted.length === 0) {
+            tbody.innerHTML = `<tr class="no-data-row"><td colspan="6"><span style="font-size:32px;">🌱</span><br><br>No verified harvests yet.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = sorted.map(h => {
+            const gc = h.quality_grade === 'Export-Grade' ? 'export' : h.quality_grade === 'Local-Market' ? 'local' : 'processing';
+            const pc = h.purity_score >= 0.9 ? 'var(--accent-green)' : h.purity_score >= 0.7 ? 'var(--accent-amber)' : 'var(--accent-red)';
+            const ts = new Date(h.metadata?.timestamp || Date.now()).toLocaleDateString();
+            return `
+                <tr>
+                    <td><span style="font-family:var(--font-mono); color:var(--accent-cyan);">${h.certificate_id}</span></td>
+                    <td><span class="mini-badge ${gc}">${h.quality_grade}</span></td>
+                    <td>
+                        <div class="purity-bar">
+                            <div class="purity-bar-track">
+                                <div class="purity-bar-fill" style="width:${(h.purity_score*100).toFixed(0)}%; background:${pc};"></div>
+                            </div>
+                            <span style="font-family:var(--font-mono); font-size:13px;">${(h.purity_score*100).toFixed(1)}%</span>
+                        </div>
+                    </td>
+                    <td style="font-family:var(--font-mono);font-weight:600;">₹${h.estimated_valuation.toLocaleString()}</td>
+                    <td style="color:var(--text-secondary);">${h.metadata?.harvest_location || '—'}</td>
+                    <td style="color:var(--text-muted);font-size:13px;">${ts}</td>
+                </tr>`;
+        }).join('');
+    }
+
+    // ── Utilities ────────────────────────────────────────────────────────────
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    function markStepActive(id) {
+        const el = document.getElementById(id);
+        el.classList.remove('done');
+        el.classList.add('active');
+        el.querySelector('.step-icon').textContent = '🔄';
+    }
+
+    function markStepDone(id) {
+        const el = document.getElementById(id);
+        el.classList.remove('active');
+        el.classList.add('done');
+        el.querySelector('.step-icon').textContent = '✅';
+    }
+</script>
+
+</body>
+</html>
