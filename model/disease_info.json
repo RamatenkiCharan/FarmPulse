@@ -1,0 +1,344 @@
+{
+  "Apple___Apple_scab": {
+    "severity": "high",
+    "symptoms": "Visual signs of Apple scab detected on Apple.",
+    "cause": "Pathogen causing Apple scab in Apple.",
+    "solution": "Consult agricultural extension for Apple scab treatment on Apple.",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Apple___Black_rot": {
+    "severity": "high",
+    "symptoms": "Visual signs of Black rot detected on Apple.",
+    "cause": "Pathogen causing Black rot in Apple.",
+    "solution": "Consult agricultural extension for Black rot treatment on Apple.",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Apple___Cedar_apple_rust": {
+    "severity": "high",
+    "symptoms": "Visual signs of Cedar apple rust detected on Apple.",
+    "cause": "Pathogen causing Cedar apple rust in Apple.",
+    "solution": "Consult agricultural extension for Cedar apple rust treatment on Apple.",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Apple___healthy": {
+    "severity": "low",
+    "symptoms": "No disease symptoms detected. Plant appears healthy.",
+    "cause": "N/A \u2014 Your crop is in good health!",
+    "solution": "Continue current management practices.",
+    "prevention": "Regular scouting every 7 days.",
+    "yieldLoss": "0%",
+    "treatmentCost": "\u20b90"
+  },
+  "Blueberry___healthy": {
+    "severity": "low",
+    "symptoms": "No disease symptoms detected. Plant appears healthy.",
+    "cause": "N/A \u2014 Your crop is in good health!",
+    "solution": "Continue current management practices.",
+    "prevention": "Regular scouting every 7 days.",
+    "yieldLoss": "0%",
+    "treatmentCost": "\u20b90"
+  },
+  "Cherry_(including_sour)___Powdery_mildew": {
+    "severity": "high",
+    "symptoms": "Visual signs of Powdery mildew detected on Cherry (including sour).",
+    "cause": "Pathogen causing Powdery mildew in Cherry (including sour).",
+    "solution": "Consult agricultural extension for Powdery mildew treatment on Cherry (including sour).",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Cherry_(including_sour)___healthy": {
+    "severity": "low",
+    "symptoms": "No disease symptoms detected. Plant appears healthy.",
+    "cause": "N/A \u2014 Your crop is in good health!",
+    "solution": "Continue current management practices.",
+    "prevention": "Regular scouting every 7 days.",
+    "yieldLoss": "0%",
+    "treatmentCost": "\u20b90"
+  },
+  "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot": {
+    "severity": "high",
+    "symptoms": "Visual signs of Cercospora leaf spot Gray leaf spot detected on Corn (maize).",
+    "cause": "Pathogen causing Cercospora leaf spot Gray leaf spot in Corn (maize).",
+    "solution": "Consult agricultural extension for Cercospora leaf spot Gray leaf spot treatment on Corn (maize).",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Corn_(maize)___Common_rust_": {
+    "severity": "high",
+    "symptoms": "Visual signs of Common rust  detected on Corn (maize).",
+    "cause": "Pathogen causing Common rust  in Corn (maize).",
+    "solution": "Consult agricultural extension for Common rust  treatment on Corn (maize).",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Corn_(maize)___Northern_Leaf_Blight": {
+    "severity": "high",
+    "symptoms": "Visual signs of Northern Leaf Blight detected on Corn (maize).",
+    "cause": "Pathogen causing Northern Leaf Blight in Corn (maize).",
+    "solution": "Consult agricultural extension for Northern Leaf Blight treatment on Corn (maize).",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Corn_(maize)___healthy": {
+    "severity": "low",
+    "symptoms": "No disease symptoms detected. Plant appears healthy.",
+    "cause": "N/A \u2014 Your crop is in good health!",
+    "solution": "Continue current management practices.",
+    "prevention": "Regular scouting every 7 days.",
+    "yieldLoss": "0%",
+    "treatmentCost": "\u20b90"
+  },
+  "Grape___Black_rot": {
+    "severity": "high",
+    "symptoms": "Visual signs of Black rot detected on Grape.",
+    "cause": "Pathogen causing Black rot in Grape.",
+    "solution": "Consult agricultural extension for Black rot treatment on Grape.",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Grape___Esca_(Black_Measles)": {
+    "severity": "high",
+    "symptoms": "Visual signs of Esca (Black Measles) detected on Grape.",
+    "cause": "Pathogen causing Esca (Black Measles) in Grape.",
+    "solution": "Consult agricultural extension for Esca (Black Measles) treatment on Grape.",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Grape___Leaf_blight_(Isariopsis_Leaf_Spot)": {
+    "severity": "high",
+    "symptoms": "Visual signs of Leaf blight (Isariopsis Leaf Spot) detected on Grape.",
+    "cause": "Pathogen causing Leaf blight (Isariopsis Leaf Spot) in Grape.",
+    "solution": "Consult agricultural extension for Leaf blight (Isariopsis Leaf Spot) treatment on Grape.",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Grape___healthy": {
+    "severity": "low",
+    "symptoms": "No disease symptoms detected. Plant appears healthy.",
+    "cause": "N/A \u2014 Your crop is in good health!",
+    "solution": "Continue current management practices.",
+    "prevention": "Regular scouting every 7 days.",
+    "yieldLoss": "0%",
+    "treatmentCost": "\u20b90"
+  },
+  "Orange___Haunglongbing_(Citrus_greening)": {
+    "severity": "high",
+    "symptoms": "Visual signs of Haunglongbing (Citrus greening) detected on Orange.",
+    "cause": "Pathogen causing Haunglongbing (Citrus greening) in Orange.",
+    "solution": "Consult agricultural extension for Haunglongbing (Citrus greening) treatment on Orange.",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Peach___Bacterial_spot": {
+    "severity": "high",
+    "symptoms": "Visual signs of Bacterial spot detected on Peach.",
+    "cause": "Pathogen causing Bacterial spot in Peach.",
+    "solution": "Consult agricultural extension for Bacterial spot treatment on Peach.",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Peach___healthy": {
+    "severity": "low",
+    "symptoms": "No disease symptoms detected. Plant appears healthy.",
+    "cause": "N/A \u2014 Your crop is in good health!",
+    "solution": "Continue current management practices.",
+    "prevention": "Regular scouting every 7 days.",
+    "yieldLoss": "0%",
+    "treatmentCost": "\u20b90"
+  },
+  "Pepper,_bell___Bacterial_spot": {
+    "severity": "high",
+    "symptoms": "Visual signs of Bacterial spot detected on Pepper, bell.",
+    "cause": "Pathogen causing Bacterial spot in Pepper, bell.",
+    "solution": "Consult agricultural extension for Bacterial spot treatment on Pepper, bell.",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Pepper,_bell___healthy": {
+    "severity": "low",
+    "symptoms": "No disease symptoms detected. Plant appears healthy.",
+    "cause": "N/A \u2014 Your crop is in good health!",
+    "solution": "Continue current management practices.",
+    "prevention": "Regular scouting every 7 days.",
+    "yieldLoss": "0%",
+    "treatmentCost": "\u20b90"
+  },
+  "Potato___Early_blight": {
+    "severity": "high",
+    "symptoms": "Visual signs of Early blight detected on Potato.",
+    "cause": "Pathogen causing Early blight in Potato.",
+    "solution": "Consult agricultural extension for Early blight treatment on Potato.",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Potato___Late_blight": {
+    "severity": "high",
+    "symptoms": "Visual signs of Late blight detected on Potato.",
+    "cause": "Pathogen causing Late blight in Potato.",
+    "solution": "Consult agricultural extension for Late blight treatment on Potato.",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Potato___healthy": {
+    "severity": "low",
+    "symptoms": "No disease symptoms detected. Plant appears healthy.",
+    "cause": "N/A \u2014 Your crop is in good health!",
+    "solution": "Continue current management practices.",
+    "prevention": "Regular scouting every 7 days.",
+    "yieldLoss": "0%",
+    "treatmentCost": "\u20b90"
+  },
+  "Raspberry___healthy": {
+    "severity": "low",
+    "symptoms": "No disease symptoms detected. Plant appears healthy.",
+    "cause": "N/A \u2014 Your crop is in good health!",
+    "solution": "Continue current management practices.",
+    "prevention": "Regular scouting every 7 days.",
+    "yieldLoss": "0%",
+    "treatmentCost": "\u20b90"
+  },
+  "Soybean___healthy": {
+    "severity": "low",
+    "symptoms": "No disease symptoms detected. Plant appears healthy.",
+    "cause": "N/A \u2014 Your crop is in good health!",
+    "solution": "Continue current management practices.",
+    "prevention": "Regular scouting every 7 days.",
+    "yieldLoss": "0%",
+    "treatmentCost": "\u20b90"
+  },
+  "Squash___Powdery_mildew": {
+    "severity": "high",
+    "symptoms": "Visual signs of Powdery mildew detected on Squash.",
+    "cause": "Pathogen causing Powdery mildew in Squash.",
+    "solution": "Consult agricultural extension for Powdery mildew treatment on Squash.",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Strawberry___Leaf_scorch": {
+    "severity": "high",
+    "symptoms": "Visual signs of Leaf scorch detected on Strawberry.",
+    "cause": "Pathogen causing Leaf scorch in Strawberry.",
+    "solution": "Consult agricultural extension for Leaf scorch treatment on Strawberry.",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Strawberry___healthy": {
+    "severity": "low",
+    "symptoms": "No disease symptoms detected. Plant appears healthy.",
+    "cause": "N/A \u2014 Your crop is in good health!",
+    "solution": "Continue current management practices.",
+    "prevention": "Regular scouting every 7 days.",
+    "yieldLoss": "0%",
+    "treatmentCost": "\u20b90"
+  },
+  "Tomato___Bacterial_spot": {
+    "severity": "high",
+    "symptoms": "Visual signs of Bacterial spot detected on Tomato.",
+    "cause": "Pathogen causing Bacterial spot in Tomato.",
+    "solution": "Consult agricultural extension for Bacterial spot treatment on Tomato.",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Tomato___Early_blight": {
+    "severity": "high",
+    "symptoms": "Visual signs of Early blight detected on Tomato.",
+    "cause": "Pathogen causing Early blight in Tomato.",
+    "solution": "Consult agricultural extension for Early blight treatment on Tomato.",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Tomato___Late_blight": {
+    "severity": "high",
+    "symptoms": "Visual signs of Late blight detected on Tomato.",
+    "cause": "Pathogen causing Late blight in Tomato.",
+    "solution": "Consult agricultural extension for Late blight treatment on Tomato.",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Tomato___Leaf_Mold": {
+    "severity": "high",
+    "symptoms": "Visual signs of Leaf Mold detected on Tomato.",
+    "cause": "Pathogen causing Leaf Mold in Tomato.",
+    "solution": "Consult agricultural extension for Leaf Mold treatment on Tomato.",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Tomato___Septoria_leaf_spot": {
+    "severity": "high",
+    "symptoms": "Visual signs of Septoria leaf spot detected on Tomato.",
+    "cause": "Pathogen causing Septoria leaf spot in Tomato.",
+    "solution": "Consult agricultural extension for Septoria leaf spot treatment on Tomato.",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Tomato___Spider_mites Two-spotted_spider_mite": {
+    "severity": "high",
+    "symptoms": "Visual signs of Spider mites Two-spotted spider mite detected on Tomato.",
+    "cause": "Pathogen causing Spider mites Two-spotted spider mite in Tomato.",
+    "solution": "Consult agricultural extension for Spider mites Two-spotted spider mite treatment on Tomato.",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Tomato___Target_Spot": {
+    "severity": "high",
+    "symptoms": "Visual signs of Target Spot detected on Tomato.",
+    "cause": "Pathogen causing Target Spot in Tomato.",
+    "solution": "Consult agricultural extension for Target Spot treatment on Tomato.",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Tomato___Tomato_Yellow_Leaf_Curl_Virus": {
+    "severity": "high",
+    "symptoms": "Visual signs of Tomato Yellow Leaf Curl Virus detected on Tomato.",
+    "cause": "Pathogen causing Tomato Yellow Leaf Curl Virus in Tomato.",
+    "solution": "Consult agricultural extension for Tomato Yellow Leaf Curl Virus treatment on Tomato.",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Tomato___Tomato_mosaic_virus": {
+    "severity": "high",
+    "symptoms": "Visual signs of Tomato mosaic virus detected on Tomato.",
+    "cause": "Pathogen causing Tomato mosaic virus in Tomato.",
+    "solution": "Consult agricultural extension for Tomato mosaic virus treatment on Tomato.",
+    "prevention": "Use resistant varieties. Crop rotation. Field hygiene.",
+    "yieldLoss": "20-50%",
+    "treatmentCost": "\u20b9800-1500/acre"
+  },
+  "Tomato___healthy": {
+    "severity": "low",
+    "symptoms": "No disease symptoms detected. Plant appears healthy.",
+    "cause": "N/A \u2014 Your crop is in good health!",
+    "solution": "Continue current management practices.",
+    "prevention": "Regular scouting every 7 days.",
+    "yieldLoss": "0%",
+    "treatmentCost": "\u20b90"
+  }
+}

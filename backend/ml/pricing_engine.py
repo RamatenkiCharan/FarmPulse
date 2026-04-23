@@ -118,12 +118,12 @@ class PricingEngine:
         bulk_volume_tons: float = 10.0,
         regional_market_index: float = 1.0,
         seasonality_factor: float = 1.0,
-    ) -> int:
+    ) -> dict:
         """
         Predicts the fair Verified Valuation (₹/ton) for a crop shipment.
 
         Returns:
-            Integer price in ₹ per ton.
+            Dict with price_per_ton and price_per_quintal.
         """
         if not self._is_trained:
             raise RuntimeError("Model is not trained. Call train() first.")
@@ -136,7 +136,13 @@ class PricingEngine:
         ]])
 
         predicted = self.model.predict(features)[0]
-        return max(int(round(predicted)), 0)
+        price_per_ton = max(int(round(predicted)), 0)
+        price_per_quintal = max(int(round(predicted / 10)), 0)
+        return {
+            "price_per_ton": price_per_ton,
+            "price_per_quintal": price_per_quintal,
+            "currency": "INR",
+        }
 
     # ── Feature Importance ────────────────────────────────────────────────
     def get_feature_importance(self) -> dict:
@@ -175,8 +181,8 @@ if __name__ == "__main__":
 
     print("\n🧪  Price Predictions:")
     for tc in test_cases:
-        price = engine.predict_price(**tc)
-        print(f"  Quality={tc['quality_score']:.2f}  Vol={tc['bulk_volume_tons']}T  → ₹{price:,}/ton")
+        result = engine.predict_price(**tc)
+        print(f"  Quality={tc['quality_score']:.2f}  Vol={tc['bulk_volume_tons']}T  → ₹{result['price_per_ton']:,}/ton (₹{result['price_per_quintal']:,}/quintal)")
 
     print("\n📈  Feature Importance:")
     for feat, imp in engine.get_feature_importance().items():

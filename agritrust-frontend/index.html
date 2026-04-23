@@ -7,7 +7,7 @@
     <title>Agri-Trust | AI Crop Verification Platform</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
     <style>
         /* ═══════════════════════════════════════════════════════════════════
            DESIGN SYSTEM
@@ -37,7 +37,8 @@
             --radius-md: 12px;
             --radius-lg: 16px;
             --radius-xl: 24px;
-            --font-sans: 'Inter', -apple-system, sans-serif;
+            --font-sans: 'Outfit', -apple-system, sans-serif;
+            --font-serif: 'Playfair Display', serif;
             --font-mono: 'JetBrains Mono', monospace;
         }
 
@@ -125,8 +126,10 @@
             box-shadow: 0 4px 20px rgba(52,211,153,0.3);
         }
         .logo-text h1 {
-            font-size: 24px;
+            font-family: var(--font-serif);
+            font-size: 26px;
             font-weight: 800;
+            font-style: italic;
             background: var(--gradient-main);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -437,9 +440,9 @@
         }
         .metric-card:hover { transform: translateY(-4px); }
         .metric-value {
-            font-size: 28px;
-            font-weight: 800;
-            font-family: var(--font-mono);
+            font-size: 32px;
+            font-weight: 900;
+            font-family: var(--font-serif);
             margin-bottom: 6px;
         }
         .metric-value.green { color: var(--accent-green); }
@@ -533,8 +536,9 @@
             margin-bottom: 16px;
         }
         .cert-header h2 {
-            font-size: 28px;
-            font-weight: 800;
+            font-family: var(--font-serif);
+            font-size: 32px;
+            font-weight: 900;
             margin-bottom: 4px;
         }
         .cert-header .cert-id {

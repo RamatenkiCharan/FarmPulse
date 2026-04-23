@@ -12,7 +12,7 @@ import os
 import sys
 import uuid
 from datetime import datetime, timezone
-from typing import Optional
+from typing import List, Optional
 
 from fastapi import FastAPI, File, Form, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -54,7 +54,7 @@ pricing_engine = PricingEngine()
 print("✅  All AI modules initialized.\n")
 
 # In-memory store for verified harvests (use a DB in production)
-verified_harvests: list[dict] = []
+verified_harvests: List[dict] = []
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -80,12 +80,13 @@ async def health_check():
 # ══════════════════════════════════════════════════════════════════════════════
 @app.post("/verify-crop")
 async def verify_crop(
-    image: UploadFile = File(..., description="Crop image (JPEG/PNG)"),
+    file: UploadFile = File(..., description="Crop image (JPEG/PNG)"),
     bulk_volume_tons: Optional[float] = Form(10.0, description="Shipment volume in tons"),
     regional_market_index: Optional[float] = Form(1.0, description="Regional demand index (0.5 – 2.0)"),
     seasonality_factor: Optional[float] = Form(1.0, description="Season adjustment (0.5 – 1.5)"),
     harvest_location: Optional[str] = Form("Unknown", description="GPS / region of harvest"),
     crop_type: Optional[str] = Form("General", description="Type of crop (e.g. Corn, Wheat)"),
+    language: Optional[str] = Form("en-IN", description="Language code (e.g. en-IN, hi-IN, te-IN)"),
 ):
     """
     **Full AI-Powered Crop Verification**
@@ -99,13 +100,13 @@ async def verify_crop(
     Returns a complete verification report.
     """
     # ── Validate upload ───────────────────────────────────────────────────
-    if not image.content_type or not image.content_type.startswith("image/"):
+    if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(
             status_code=400,
             detail="Invalid file type. Please upload a JPEG or PNG image.",
         )
 
-    image_bytes = await image.read()
+    image_bytes = await file.read()
     if len(image_bytes) == 0:
         raise HTTPException(status_code=400, detail="Empty image file.")
 
@@ -147,7 +148,7 @@ async def verify_crop(
     disease_info = None
     if grading_result["purity_score"] < 0.85:
         # If quality is low, assume disease/issue present
-        disease_info = get_disease_diagnosis(crop_type)
+        disease_info = get_disease_diagnosis(crop_type, lang=language)
 
     # ── Build Response ────────────────────────────────────────────────────
     certificate_id = str(uuid.uuid4())[:12].upper()

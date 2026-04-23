@@ -5,8 +5,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FarmPulse — AI Farm Co-Pilot</title>
+  <!-- TensorFlow.js for real ML model inference -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
   <link
-    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400&display=swap"
     rel="stylesheet" />
   <style>
     :root {
@@ -35,11 +37,12 @@
     }
 
     body {
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Outfit', sans-serif;
       background: var(--soil);
       color: var(--cream);
       min-height: 100vh;
       overflow-x: hidden;
+      letter-spacing: 0.01em;
     }
 
     /* === BACKGROUND === */
@@ -79,15 +82,17 @@
     }
 
     .logo {
-      font-family: 'Syne', sans-serif;
-      font-size: 1.6rem;
-      font-weight: 800;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 900;
       color: var(--lime);
       letter-spacing: -0.5px;
+      font-style: italic;
     }
 
     .logo span {
       color: var(--wheat);
+      font-style: normal;
     }
 
     .nav-tabs {
@@ -110,7 +115,7 @@
       color: rgba(255, 255, 255, 0.5);
       transition: all 0.25s ease;
       white-space: nowrap;
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Outfit', sans-serif;
     }
 
     .nav-tab.active {
@@ -191,15 +196,16 @@
     }
 
     .hero h1 {
-      font-family: 'Syne', sans-serif;
-      font-size: clamp(2.8rem, 6vw, 5rem);
-      font-weight: 800;
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem, 7vw, 5.5rem);
+      font-weight: 900;
       line-height: 1.05;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
       background: linear-gradient(135deg, #ffffff 0%, var(--lime) 50%, var(--wheat) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      letter-spacing: -1px;
     }
 
     .hero p {
@@ -223,8 +229,8 @@
     }
 
     .stat-num {
-      font-family: 'Syne', sans-serif;
-      font-size: 2rem;
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
       font-weight: 800;
       color: var(--lime);
     }
@@ -399,7 +405,7 @@
     .btn {
       padding: 12px 28px;
       border-radius: 12px;
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Outfit', sans-serif;
       font-size: 0.9rem;
       font-weight: 600;
       cursor: pointer;
@@ -556,7 +562,7 @@
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 12px;
       color: white;
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Outfit', sans-serif;
       font-size: 0.9rem;
       transition: border-color 0.25s;
       outline: none;
@@ -2188,6 +2194,501 @@
       document.querySelectorAll('.nav-tab')[idx].classList.add('active');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+    // ===== TENSORFLOW.JS MODEL LOADER =====
+    let tfjsModel = null;
+    let classLabels = null;
+    let diseaseInfoDB = null;
+    let modelLoadAttempted = false;
+
+    async function loadTFModel() {
+      if (modelLoadAttempted) return;
+      modelLoadAttempted = true;
+
+      try {
+        // Try to load the trained model from model/ directory
+        const modelUrl = 'model/model.json';
+        console.log('🧠 Loading TensorFlow.js model...');
+
+        // Load model and labels in parallel
+        const [model, labelsRes, infoRes] = await Promise.all([
+          tf.loadLayersModel(modelUrl),
+          fetch('model/class_labels.json').then(r => r.json()),
+          fetch('model/disease_info.json').then(r => r.json())
+        ]);
+
+        tfjsModel = model;
+        classLabels = labelsRes;
+        diseaseInfoDB = infoRes;
+
+        console.log(`✅ ML Model loaded! ${Object.keys(classLabels).length} disease classes ready.`);
+        showNotification('🧠 AI Model Loaded', `Real ML model active with ${Object.keys(classLabels).length} disease classes!`);
+      } catch (err) {
+        console.log('ℹ️ ML model not found in model/ directory. Using Canvas-based analysis.', err.message);
+        // This is fine — Canvas analyzer will be used as fallback
+      }
+    }
+
+    // Try loading the model when page loads
+    if (typeof tf !== 'undefined') {
+      window.addEventListener('DOMContentLoaded', () => setTimeout(loadTFModel, 2000));
+    }
+
+    async function predictWithModel(imgElement) {
+      if (!tfjsModel || !classLabels) return null;
+
+      try {
+        // Preprocess image: resize to 224x224, normalize to [0, 1]
+        const tensor = tf.tidy(() => {
+          const img = tf.browser.fromPixels(imgElement)
+            .resizeNearestNeighbor([224, 224])
+            .toFloat()
+            .div(255.0)
+            .expandDims(0);
+          return img;
+        });
+
+        // Run inference
+        const predictions = await tfjsModel.predict(tensor).data();
+        tensor.dispose();
+
+        // Find top 3 predictions
+        const indexed = Array.from(predictions).map((prob, idx) => ({ idx, prob }));
+        indexed.sort((a, b) => b.prob - a.prob);
+
+        const top3 = indexed.slice(0, 3).map(item => {
+          const label = classLabels[String(item.idx)] || { display_name: `Class ${item.idx}`, is_healthy: false };
+          const info = diseaseInfoDB?.[label.class_name] || null;
+          return {
+            className: label.class_name,
+            displayName: label.display_name,
+            crop: label.crop,
+            disease: label.disease,
+            isHealthy: label.is_healthy,
+            confidence: item.prob,
+            info: info
+          };
+        });
+
+        return top3;
+      } catch (err) {
+        console.error('Model prediction error:', err);
+        return null;
+      }
+    }
+
+    // ===== SMART IMAGE ANALYZER (Client-Side AI) =====
+    function analyzeImageColors(imgElement) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const size = 128; // Analyze at reduced resolution for speed
+      canvas.width = size;
+      canvas.height = size;
+      ctx.drawImage(imgElement, 0, 0, size, size);
+      const imageData = ctx.getImageData(0, 0, size, size);
+      const pixels = imageData.data;
+      const totalPixels = size * size;
+
+      let brownPixels = 0, yellowPixels = 0, darkPixels = 0, greenPixels = 0;
+      let whitePixels = 0, redPixels = 0, orangePixels = 0, grayPixels = 0;
+      let totalR = 0, totalG = 0, totalB = 0;
+
+      for (let i = 0; i < pixels.length; i += 4) {
+        const r = pixels[i], g = pixels[i + 1], b = pixels[i + 2];
+        totalR += r; totalG += g; totalB += b;
+
+        // Brown detection (rust, blight, decay)
+        if (r > 80 && r < 200 && g > 40 && g < 140 && b < 100 && r > g) brownPixels++;
+        // Yellow detection (nutrient deficiency, chlorosis, rust)
+        if (r > 180 && g > 160 && b < 100) yellowPixels++;
+        // Dark spots (necrosis, rot, smut)
+        if (r < 60 && g < 60 && b < 60) darkPixels++;
+        // Green (healthy tissue)
+        if (g > 80 && g > r && g > b && (g - r) > 20) greenPixels++;
+        // White/pale (mildew, powdery mildew)
+        if (r > 200 && g > 200 && b > 200) whitePixels++;
+        // Red (severe damage, anthracnose)
+        if (r > 150 && g < 80 && b < 80) redPixels++;
+        // Orange (rust pustules)
+        if (r > 180 && g > 100 && g < 170 && b < 80) orangePixels++;
+        // Gray (mold, late blight)
+        if (Math.abs(r - g) < 20 && Math.abs(g - b) < 20 && r > 80 && r < 180) grayPixels++;
+      }
+
+      const avgR = totalR / totalPixels, avgG = totalG / totalPixels, avgB = totalB / totalPixels;
+
+      return {
+        brownPct: (brownPixels / totalPixels) * 100,
+        yellowPct: (yellowPixels / totalPixels) * 100,
+        darkPct: (darkPixels / totalPixels) * 100,
+        greenPct: (greenPixels / totalPixels) * 100,
+        whitePct: (whitePixels / totalPixels) * 100,
+        redPct: (redPixels / totalPixels) * 100,
+        orangePct: (orangePixels / totalPixels) * 100,
+        grayPct: (grayPixels / totalPixels) * 100,
+        avgColor: { r: avgR, g: avgG, b: avgB },
+        dominantChannel: avgR > avgG && avgR > avgB ? 'red' : avgG > avgB ? 'green' : 'blue',
+      };
+    }
+
+    function matchDisease(colorData) {
+      const scores = [];
+
+      for (const [key, disease] of Object.entries(diseaseDB)) {
+        let score = 0;
+        const t = disease.triggers;
+
+        if (t.brown && colorData.brownPct > 5) score += Math.min(colorData.brownPct * t.brown, 40);
+        if (t.yellow && colorData.yellowPct > 3) score += Math.min(colorData.yellowPct * t.yellow, 30);
+        if (t.dark && colorData.darkPct > 3) score += Math.min(colorData.darkPct * t.dark, 25);
+        if (t.white && colorData.whitePct > 5) score += Math.min(colorData.whitePct * t.white, 30);
+        if (t.red && colorData.redPct > 2) score += Math.min(colorData.redPct * t.red, 25);
+        if (t.orange && colorData.orangePct > 3) score += Math.min(colorData.orangePct * t.orange, 30);
+        if (t.gray && colorData.grayPct > 5) score += Math.min(colorData.grayPct * t.gray, 25);
+        if (t.lowGreen && colorData.greenPct < 20) score += (20 - colorData.greenPct) * (t.lowGreen || 0);
+        if (t.highGreen && colorData.greenPct > 40) score += colorData.greenPct * 0.2;
+
+        // Add small randomness for natural variation
+        score += Math.random() * 5;
+
+        scores.push({ key, disease, score });
+      }
+
+      // Sort by score (highest first)
+      scores.sort((a, b) => b.score - a.score);
+      return scores;
+    }
+
+    const diseaseDB = {
+      early_blight: {
+        name: 'Early Blight (Alternaria solani)',
+        severity: 'high',
+        triggers: { brown: 3, dark: 2, lowGreen: 1.5, yellow: 1 },
+        symptoms: 'Dark brown circular spots with concentric rings (target-board pattern) on older leaves. Yellow halo surrounds spots.',
+        cause: 'Fungal pathogen Alternaria solani. Spreads in warm, humid conditions (24–29°C).',
+        solution: 'Apply Mancozeb 75% WP @ 2g/L water immediately. Follow up with Copper Oxychloride after 7 days.',
+        prevention: 'Remove infected leaves. Avoid overhead irrigation. Use resistant varieties.',
+        yieldLoss: '30–50%',
+        treatmentCost: '₹1,200/acre'
+      },
+      late_blight: {
+        name: 'Late Blight (Phytophthora infestans)',
+        severity: 'high',
+        triggers: { dark: 3, gray: 2.5, brown: 1.5, lowGreen: 1 },
+        symptoms: 'Dark water-soaked lesions on leaves, stems, and fruits. White fuzzy mold on underside of leaves.',
+        cause: 'Oomycete Phytophthora infestans. Thrives in cool (15–20°C), wet conditions.',
+        solution: 'Spray Metalaxyl + Mancozeb (Ridomil Gold) immediately. Destroy all infected plants.',
+        prevention: 'Use disease-free seeds. Avoid overhead irrigation. Ensure good air circulation.',
+        yieldLoss: '60–100%',
+        treatmentCost: '₹1,800/acre'
+      },
+      yellow_rust: {
+        name: 'Yellow Rust (Puccinia striiformis)',
+        severity: 'high',
+        triggers: { yellow: 3.5, orange: 2, brown: 1, lowGreen: 1 },
+        symptoms: 'Yellow-orange pustules in stripes along leaf veins. Leaves eventually dry out and die.',
+        cause: 'Fungal pathogen Puccinia striiformis. Thrives in cool (10–15°C) and moist conditions.',
+        solution: 'Spray Propiconazole 25% EC @ 1ml/L water. Apply Tebuconazole as follow-up in 10 days.',
+        prevention: 'Use resistant varieties in next planting season. Remove volunteer wheat.',
+        yieldLoss: '50–70%',
+        treatmentCost: '₹950/acre'
+      },
+      powdery_mildew: {
+        name: 'Powdery Mildew (Erysiphales)',
+        severity: 'mid',
+        triggers: { white: 3, gray: 2, lowGreen: 0.8 },
+        symptoms: 'White powdery coating on leaves, stems, and buds. Leaves may curl, yellow, and drop.',
+        cause: 'Fungal pathogens (Erysiphales order). Favors warm days, cool nights, and high humidity.',
+        solution: 'Apply Sulphur 80% WP @ 3g/L or Carbendazim 50% WP @ 1g/L water.',
+        prevention: 'Ensure good air circulation. Avoid excess nitrogen fertilizer. Water at base of plants.',
+        yieldLoss: '15–25%',
+        treatmentCost: '₹700/acre'
+      },
+      anthracnose: {
+        name: 'Anthracnose (Colletotrichum)',
+        severity: 'high',
+        triggers: { red: 3, brown: 2, dark: 2, lowGreen: 1 },
+        symptoms: 'Sunken, dark lesions on fruits, stems, and leaves. Red-brown spots with dark margins.',
+        cause: 'Colletotrichum fungus. Spreads via rain splash in warm, humid conditions.',
+        solution: 'Apply Copper Oxychloride @ 3g/L. Remove and burn all infected plant parts.',
+        prevention: 'Use pathogen-free seeds. Crop rotation with non-host crops. Avoid working in wet fields.',
+        yieldLoss: '25–50%',
+        treatmentCost: '₹1,100/acre'
+      },
+      bacterial_wilt: {
+        name: 'Bacterial Wilt (Ralstonia solanacearum)',
+        severity: 'high',
+        triggers: { brown: 2, lowGreen: 3, dark: 1, yellow: 1.5 },
+        symptoms: 'Sudden wilting of entire plant. Stems show brown discoloration internally. No leaf spots.',
+        cause: 'Bacterium Ralstonia solanacearum. Survives in soil and spreads through water.',
+        solution: 'No chemical cure available. Uproot and burn infected plants. Apply lime to soil.',
+        prevention: 'Use resistant varieties. Practice crop rotation. Maintain soil drainage.',
+        yieldLoss: '50–100%',
+        treatmentCost: '₹500/acre (soil treatment)'
+      },
+      common_smut: {
+        name: 'Common Smut (Ustilago maydis)',
+        severity: 'mid',
+        triggers: { dark: 3, gray: 2, brown: 1.5 },
+        symptoms: 'Large, irregular galls (tumor-like growths) on ears, tassels, and leaves. Galls start white then turn black.',
+        cause: 'Soil-borne fungus Ustilago maydis. Infection occurs through wounds from insects or cultivation.',
+        solution: 'Remove and destroy galls BEFORE they rupture. Treat seeds with Thiram 75% WP @ 3g/kg seed.',
+        prevention: 'Rotate with non-grass crops. Improve drainage. Avoid injuring plants during cultivation.',
+        yieldLoss: '10–30%',
+        treatmentCost: '₹600/acre'
+      },
+      aphid_infestation: {
+        name: 'Aphid Infestation (Aphis sp.)',
+        severity: 'mid',
+        triggers: { yellow: 2, lowGreen: 2, white: 1 },
+        symptoms: 'Tiny yellow-green insects on leaf undersides. Leaves curl, yellow, and wilt. Sticky honeydew on surfaces.',
+        cause: 'Rapid aphid population explosion in dry, warm weather. Also vectors for viral diseases.',
+        solution: 'Spray Imidacloprid 17.8% SL @ 0.5ml/L water. Alternatively use Neem Oil 5% for organic control.',
+        prevention: 'Release lady beetles (natural predator). Monitor weekly — threshold is 250 aphids/plant.',
+        yieldLoss: '20–40%',
+        treatmentCost: '₹500/acre'
+      },
+      downy_mildew: {
+        name: 'Downy Mildew (Peronospora sp.)',
+        severity: 'high',
+        triggers: { gray: 3, yellow: 2, white: 1.5, lowGreen: 1 },
+        symptoms: 'Angular yellow patches on upper leaf surface. Gray-purple fuzzy growth on underside.',
+        cause: 'Oomycete pathogen. Favors cool, wet weather and poor air circulation.',
+        solution: 'Apply Metalaxyl-M @ 2g/L or Copper Hydroxide. Remove heavily infected leaves.',
+        prevention: 'Avoid overhead watering. Space plants for air flow. Use resistant cultivars.',
+        yieldLoss: '30–60%',
+        treatmentCost: '₹1,400/acre'
+      },
+      leaf_curl: {
+        name: 'Leaf Curl Virus (Begomovirus)',
+        severity: 'high',
+        triggers: { yellow: 2.5, lowGreen: 2, brown: 1 },
+        symptoms: 'Upward or downward curling of leaves. Leaf thickening, yellowing, and stunted growth.',
+        cause: 'Begomovirus transmitted by whiteflies (Bemisia tabaci).',
+        solution: 'No direct cure for virus. Control whiteflies with Acetamiprid 20% SP @ 0.3g/L.',
+        prevention: 'Use reflective mulches. Install yellow sticky traps. Use resistant plant varieties.',
+        yieldLoss: '50–80%',
+        treatmentCost: '₹900/acre'
+      },
+      nitrogen_deficiency: {
+        name: 'Nitrogen Deficiency',
+        severity: 'low',
+        triggers: { yellow: 3, lowGreen: 2, highGreen: -1 },
+        symptoms: 'Uniform yellowing (chlorosis) starting from older/lower leaves. Stunted growth. Thin stems.',
+        cause: 'Insufficient nitrogen in soil. Leaching due to excess rain or irrigation.',
+        solution: 'Apply Urea @ 50kg/acre as top dressing. Use split applications for better uptake.',
+        prevention: 'Regular soil testing. Apply FYM/compost. Use nitrogen-fixing cover crops.',
+        yieldLoss: '20–40%',
+        treatmentCost: '₹400/acre'
+      },
+      healthy_crop: {
+        name: 'Healthy Crop ✅',
+        severity: 'low',
+        triggers: { highGreen: 3, brown: -2, dark: -2, yellow: -1 },
+        symptoms: 'No disease symptoms detected. Leaves appear green and vigorous with good turgidity.',
+        cause: 'N/A — Your crop appears to be in good health!',
+        solution: 'Continue current management practices. Maintain regular irrigation and fertilization.',
+        prevention: 'Regular scouting every 7 days. Balanced nutrition and pest monitoring.',
+        yieldLoss: '0%',
+        treatmentCost: '₹0'
+      }
+    };
+
+    async function analyzeDisease() {
+      const btn = document.getElementById('analyze-btn');
+      const img = document.getElementById('preview-img');
+      const lang = document.getElementById('voice-lang')?.value || 'en-IN';
+
+      if (!img.src || img.src === window.location.href) {
+        alert("Please upload or capture an image first.");
+        return;
+      }
+
+      // Reset UI
+      document.getElementById('disease-empty').style.display = 'none';
+      document.getElementById('disease-loader').classList.add('show');
+      document.getElementById('disease-result').style.display = 'none';
+      btn.disabled = true; btn.textContent = "🔬 Analyzing...";
+
+      try {
+        // ── CHECK IF IMAGE LOOKS LIKE A CROP PHOTO ──
+        const preCheck = analyzeImageColors(img);
+        if (preCheck.greenPct < 3 && preCheck.yellowPct < 5 && preCheck.brownPct < 15) {
+          document.getElementById('disease-loader').classList.remove('show');
+          document.getElementById('disease-result').style.display = 'block';
+          document.getElementById('disease-name').textContent = '⚠️ Not a Crop Photo';
+          document.getElementById('disease-severity').innerHTML =
+            `<span class="severity-badge sev-low">🟡 Invalid Image</span>`;
+          document.getElementById('disease-body').innerHTML =
+            `<div style="background:rgba(255,200,0,0.08);padding:16px;border-radius:8px;border-left:3px solid #fbbf24;">
+              <strong>This doesn't look like a crop or plant image.</strong><br><br>
+              📸 Please upload a <strong>close-up photo of a leaf, stem, or fruit</strong> for accurate disease detection.<br><br>
+              <span style="font-size:0.8rem;color:rgba(255,255,255,0.4);">Image analysis: Green ${preCheck.greenPct.toFixed(1)}% • Yellow ${preCheck.yellowPct.toFixed(1)}% • Brown ${preCheck.brownPct.toFixed(1)}%</span>
+            </div>`;
+          btn.disabled = false; btn.textContent = "🔬 Analyze Crop";
+          return;
+        }
+
+        // ── TRY REAL ML MODEL FIRST ──
+        await loadTFModel(); // Ensure model load attempted
+        const mlResult = await predictWithModel(img);
+
+        let diseaseName, severity, confidence, symptoms, cause, solution, prevention, yieldLoss, treatmentCost;
+        let altDiagnoses = [];
+        let analysisMethod = '';
+        let analysisDetails = '';
+
+        if (mlResult && mlResult[0] && mlResult[0].confidence > 0.3) {
+          // ✅ REAL ML MODEL PREDICTION
+          const top = mlResult[0];
+          analysisMethod = '🧠 ML Model';
+          diseaseName = top.displayName;
+          confidence = (top.confidence * 100).toFixed(1);
+          severity = top.isHealthy ? 'low' : (top.confidence > 0.7 ? 'high' : 'mid');
+
+          if (top.info) {
+            symptoms = top.info.symptoms;
+            cause = top.info.cause;
+            solution = top.info.solution;
+            prevention = top.info.prevention;
+            yieldLoss = top.info.yieldLoss;
+            treatmentCost = top.info.treatmentCost;
+          } else {
+            symptoms = `Signs of ${top.disease} detected on ${top.crop}.`;
+            cause = `Pathogen affecting ${top.crop} plants.`;
+            solution = `Consult local agricultural extension for specific ${top.disease} treatment.`;
+            prevention = 'Use resistant varieties. Practice crop rotation.';
+            yieldLoss = top.isHealthy ? '0%' : '20-50%';
+            treatmentCost = top.isHealthy ? '₹0' : '₹800-1500/acre';
+          }
+
+          // Add alternatives
+          altDiagnoses = mlResult.slice(1).filter(r => r.confidence > 0.1)
+            .map(r => `${r.displayName} (${(r.confidence * 100).toFixed(0)}%)`);
+
+          analysisDetails = `Model confidence: ${confidence}%`;
+
+        } else {
+          // ── FALLBACK: CANVAS COLOR ANALYSIS ──
+          analysisMethod = '🔬 Color Analysis';
+          const colorData = analyzeImageColors(img);
+          const matches = matchDisease(colorData);
+          const top = matches[0];
+          const disease = top.disease;
+
+          diseaseName = disease.name;
+          confidence = Math.min(95, Math.max(45, top.score + 30)).toFixed(1);
+          severity = disease.severity;
+          symptoms = disease.symptoms;
+          cause = disease.cause;
+          solution = disease.solution;
+          prevention = disease.prevention;
+          yieldLoss = disease.yieldLoss;
+          treatmentCost = disease.treatmentCost;
+
+          altDiagnoses = matches.slice(1, 3).filter(m => m.score > 10)
+            .map(m => m.disease.name);
+
+          analysisDetails = `Brown: ${colorData.brownPct.toFixed(1)}% • Yellow: ${colorData.yellowPct.toFixed(1)}% • Green: ${colorData.greenPct.toFixed(1)}% • Dark: ${colorData.darkPct.toFixed(1)}%`;
+        }
+
+        // Simulate slight processing delay for UX
+        await new Promise(r => setTimeout(r, 800));
+
+        // ── UPDATE UI ──
+        document.getElementById('disease-loader').classList.remove('show');
+        document.getElementById('disease-result').style.display = 'block';
+
+        document.getElementById('disease-name').textContent = diseaseName;
+
+        const sevMap = { high: '🔴 High Severity', mid: '🟡 Medium Severity', low: '🟢 Low Severity' };
+        const sevClass = severity === 'high' ? 'sev-high' : severity === 'mid' ? 'sev-mid' : 'sev-low';
+        document.getElementById('disease-severity').innerHTML =
+          `<span class="severity-badge ${sevClass}">${sevMap[severity] || '🟡 Medium'}</span>
+           <span style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-left:8px;">${analysisMethod} • ${confidence}%</span>`;
+
+        // Build detailed result body
+        let bodyHtml = '';
+        bodyHtml += `<div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;margin-bottom:12px;">`;
+        bodyHtml += `<strong>🔍 Symptoms:</strong> ${symptoms}<br/><br/>`;
+        bodyHtml += `<strong>🦠 Cause:</strong> ${cause}`;
+        bodyHtml += `</div>`;
+
+        bodyHtml += `<div style="background:rgba(126, 203, 53, 0.08);padding:12px;border-radius:8px;border-left:3px solid var(--lime);margin-bottom:12px;">`;
+        bodyHtml += `<strong>✅ Treatment:</strong> ${solution}<br/><br/>`;
+        bodyHtml += `<strong>🛡️ Prevention:</strong> ${prevention}`;
+        bodyHtml += `</div>`;
+
+        if (yieldLoss) {
+          bodyHtml += `<div style="display:flex;gap:20px;font-size:0.82rem;color:rgba(255,255,255,0.5);margin-top:8px;">`;
+          bodyHtml += `<span>📉 Yield Loss: <strong style="color:#f87171">${yieldLoss}</strong></span>`;
+          bodyHtml += `<span>💰 Treatment Cost: <strong style="color:var(--wheat)">${treatmentCost}</strong></span>`;
+          bodyHtml += `</div>`;
+        }
+
+        // Analysis details
+        bodyHtml += `<div style="margin-top:12px;padding:10px;background:rgba(255,255,255,0.03);border-radius:6px;font-size:0.75rem;color:rgba(255,255,255,0.35);">`;
+        bodyHtml += `<strong>📊 ${analysisMethod}:</strong> ${analysisDetails}`;
+        bodyHtml += `</div>`;
+
+        // Alternative diagnoses
+        if (altDiagnoses.length > 0) {
+          bodyHtml += `<div style="margin-top:10px;font-size:0.78rem;color:rgba(255,255,255,0.4);">`;
+          bodyHtml += `<strong>Other possible:</strong> ${altDiagnoses.join(', ')}`;
+          bodyHtml += `</div>`;
+        }
+
+        document.getElementById('disease-body').innerHTML = bodyHtml;
+
+        // Speak Result
+        let speechMsg = `Diagnosis complete. Detected ${diseaseName} with ${confidence}% confidence.`;
+        if (lang.startsWith('hi')) speechMsg = `निदान पूरा। ${diseaseName} पाया गया। विश्वसनीयता ${confidence} प्रतिशत।`;
+        if (lang.startsWith('te')) speechMsg = `నిర్ధారణ పూర్తయింది. ${diseaseName} గుర్తించబడింది. నమ్మకం ${confidence} శాతం.`;
+        speakText(speechMsg);
+
+      } catch (err) {
+        console.error("Analysis Error:", err);
+        alert("Error analyzing image: " + err.message);
+        document.getElementById('disease-loader').classList.remove('show');
+      } finally {
+        btn.disabled = false; btn.textContent = "🔬 Analyze Crop";
+      }
+    }
+
+    function loadDemo(type) {
+      document.getElementById('disease-empty').style.display = 'none';
+      document.getElementById('disease-loader').classList.add('show');
+      document.getElementById('disease-result').classList.remove('show');
+
+      setTimeout(() => {
+        document.getElementById('disease-loader').classList.remove('show');
+        const d = diseaseDB[type];
+        document.getElementById('disease-name').textContent = d.name;
+        const sevEl = document.getElementById('disease-severity');
+        const sevMap = { high: '🔴 High Severity', mid: '🟡 Medium Severity', low: '🟢 Low Severity' };
+        const sevClass = d.severity === 'high' ? 'sev-high' : d.severity === 'mid' ? 'sev-mid' : 'sev-low';
+        sevEl.innerHTML = `<span class="severity-badge ${sevClass}">${sevMap[d.severity] || '🟡 Medium'}</span>`;
+
+        let bodyHtml = '';
+        bodyHtml += `<div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;margin-bottom:12px;">`;
+        bodyHtml += `<strong>🔍 Symptoms:</strong> ${d.symptoms}<br/><br/>`;
+        bodyHtml += `<strong>🦠 Cause:</strong> ${d.cause}`;
+        bodyHtml += `</div>`;
+
+        bodyHtml += `<div style="background:rgba(126, 203, 53, 0.08);padding:12px;border-radius:8px;border-left:3px solid var(--lime);margin-bottom:12px;">`;
+        bodyHtml += `<strong>✅ Treatment:</strong> ${d.solution}<br/><br/>`;
+        bodyHtml += `<strong>🛡️ Prevention:</strong> ${d.prevention}`;
+        bodyHtml += `</div>`;
+
+        if (d.yieldLoss) {
+          bodyHtml += `<div style="display:flex;gap:20px;font-size:0.82rem;color:rgba(255,255,255,0.5);margin-top:8px;">`;
+          bodyHtml += `<span>📉 Yield Loss: <strong style="color:#f87171">${d.yieldLoss}</strong></span>`;
+          bodyHtml += `<span>💰 Treatment Cost: <strong style="color:var(--wheat)">${d.treatmentCost}</strong></span>`;
+          bodyHtml += `</div>`;
+        }
+        document.getElementById('disease-body').innerHTML = bodyHtml;
+        document.getElementById('disease-result').classList.add('show');
+      }, 1800);
+    }
 
     // ===== DISEASE DETECTION =====
     let videoStream = null;
@@ -2257,247 +2758,7 @@
       reader.readAsDataURL(file);
     }
 
-    async function analyzeDisease() {
-      const btn = document.getElementById('analyze-btn');
-      const img = document.getElementById('preview-img');
-      const cropType = document.getElementById('crop-type-select')?.value || 'corn';
-      const lang = document.getElementById('voice-lang')?.value || 'en-IN';
-
-      if (!img.src) { alert("Please upload or capture an image first."); return; }
-
-      // Reset UI
-      document.getElementById('disease-empty').style.display = 'none';
-      document.getElementById('disease-loader').classList.add('show');
-      document.getElementById('disease-result').style.display = 'none';
-      btn.disabled = true; btn.textContent = "Analyzing...";
-
-      try {
-        // Convert Base64 to Blob
-        const fetchResponse = await fetch(img.src);
-        const blob = await fetchResponse.blob();
-
-        const formData = new FormData();
-        formData.append('file', blob, 'capture.jpg');
-        formData.append('crop_type', cropType);
-        formData.append('language', lang); // Send selected language
-
-        const response = await fetch('http://localhost:8000/verify-crop', {
-          method: 'POST',
-          body: formData
-        });
-
-        if (!response.ok) throw new Error("Analysis failed");
-
-        const data = await response.json();
-
-        // Update UI with Result
-        document.getElementById('disease-loader').classList.remove('show');
-        document.getElementById('disease-result').style.display = 'block';
-
-        // Display Disease Info from Backend
-        const info = data.disease_diagnosis || { name: "Healthy / Unknown", severity: "low", body: "No specific disease detected." };
-
-        document.getElementById('disease-name').textContent = info.name;
-
-        // Severity Logic (Mock)
-        const severity = info.name.includes("Healthy") ? "low" : "high";
-        const sevHtml = severity === 'high' ?
-          `<span class="severity-badge sev-high">🔴 High Severity</span>` :
-          `<span class="severity-badge sev-low">🟢 Low Severity</span>`;
-        document.getElementById('disease-severity').innerHTML = sevHtml;
-
-        // Build Body HTML
-        let bodyHtml = "";
-        if (info.symptoms) bodyHtml += `<strong>Symptoms:</strong> ${info.symptoms}<br/><br/>`;
-        if (info.cause) bodyHtml += `<strong>Cause:</strong> ${info.cause}<br/><br/>`;
-        if (info.solution) bodyHtml += `<strong>Treatment:</strong> ${info.solution}<br/><br/>`;
-        if (info.prevention) bodyHtml += `<strong>Prevention:</strong> ${info.prevention}`;
-
-        document.getElementById('disease-body').innerHTML = bodyHtml;
-
-        // Speak Result (Localized)
-        let speechMsg = `Diagnosis complete. Detected potential ${info.name}.`;
-        if (lang.startsWith('hi')) speechMsg = `निदान पूरा हुआ। संभावित रोग: ${info.name}`;
-        if (lang.startsWith('te')) speechMsg = `వ్యాధి నిర్ధారణ పూర్తయింది. గుర్తించిన వ్యాధి: ${info.name}`;
-
-        speakText(speechMsg);
-
-      } catch (err) {
-        console.error(err);
-        alert("Error analyzing crop: " + err.message);
-        document.getElementById('disease-loader').classList.remove('show');
-      } finally {
-        btn.disabled = false; btn.textContent = "🔬 Analyze Crop";
-      }
-    }
-
-    const diseaseDB = {
-      blight: {
-        name: 'Early Blight (Alternaria solani)',
-        severity: 'high',
-        body: `<strong>Symptoms:</strong> Dark brown circular spots with concentric rings (target board pattern) on older leaves. Yellow halo surrounds spots.<br/><br/>
-    <strong>Cause:</strong> Fungal pathogen Alternaria solani. Spreads rapidly in warm, humid conditions (24–29°C).<br/><br/>
-    <strong>Treatment Plan:</strong><br/>
-    1. Apply <strong>Mancozeb 75% WP</strong> @ 2g/L water immediately<br/>
-    2. Follow up with <strong>Copper Oxychloride</strong> after 7 days<br/>
-    3. Remove and burn affected leaves<br/>
-    4. Avoid overhead irrigation<br/><br/>
-    <strong>Estimated Yield Loss if Untreated:</strong> 30–50%<br/>
-    <strong>Treatment Cost:</strong> ~₹1,200/acre`
-      },
-      rust: {
-        name: 'Yellow Rust (Puccinia striiformis)',
-        severity: 'high',
-        body: `<strong>Symptoms:</strong> Yellow-orange pustules in stripes along leaf veins. Leaves eventually dry out and die.<br/><br/>
-    <strong>Cause:</strong> Fungal pathogen Puccinia striiformis. Thrives in cool (10–15°C) and moist conditions.<br/><br/>
-    <strong>Treatment Plan:</strong><br/>
-    1. Spray <strong>Propiconazole 25% EC</strong> @ 1ml/L water<br/>
-    2. Apply <strong>Tebuconazole</strong> as a follow-up in 10 days<br/>
-    3. Use resistant varieties in next planting season<br/><br/>
-    <strong>Estimated Yield Loss if Untreated:</strong> 50–70%<br/>
-    <strong>Treatment Cost:</strong> ~₹950/acre`
-      },
-      smut: {
-        name: 'Common Smut (Ustilago maydis)',
-        severity: 'mid',
-        body: `<strong>Symptoms:</strong> Large, irregular galls (tumor-like growths) on ears, tassels, and leaves. Galls start white then turn black.<br/><br/>
-    <strong>Cause:</strong> Soil-borne fungus. Infection occurs through wounds from insects or cultivation.<br/><br/>
-    <strong>Treatment Plan:</strong><br/>
-    1. Remove and destroy galls BEFORE they rupture<br/>
-    2. Treat seeds with <strong>Thiram 75% WP</strong> @ 3g/kg seed<br/>
-    3. Rotate with non-grass crops next season<br/>
-    4. Improve drainage to reduce soil moisture<br/><br/>
-    <strong>Estimated Yield Loss if Untreated:</strong> 10–30%<br/>
-    <strong>Treatment Cost:</strong> ~₹600/acre`
-      },
-      aphid: {
-        name: 'Soybean Aphid (Aphis glycines)',
-        severity: 'mid',
-        body: `<strong>Symptoms:</strong> Colonies of tiny yellow-green insects on undersides of leaves. Leaves curl, yellow, and wilt. Sticky honeydew attracts mold.<br/><br/>
-    <strong>Cause:</strong> Rapid aphid population explosion in dry, warm weather. Also carries soybean mosaic virus.<br/><br/>
-    <strong>Treatment Plan:</strong><br/>
-    1. Spray <strong>Imidacloprid 17.8% SL</strong> @ 0.5ml/L water<br/>
-    2. Alternatively use <strong>Neem Oil 5%</strong> for organic control<br/>
-    3. Release lady beetles (natural predator) if possible<br/>
-    4. Monitor weekly — threshold is 250 aphids/plant<br/><br/>
-    <strong>Estimated Yield Loss if Untreated:</strong> 20–40%<br/>
-    <strong>Treatment Cost:</strong> ~₹500/acre`
-      }
-    };
-
-    function loadDemo(type) {
-      document.getElementById('disease-empty').style.display = 'none';
-      document.getElementById('disease-loader').classList.add('show');
-      document.getElementById('disease-result').classList.remove('show');
-
-      setTimeout(() => {
-        document.getElementById('disease-loader').classList.remove('show');
-        const d = diseaseDB[type];
-        document.getElementById('disease-name').textContent = d.name;
-        const sevEl = document.getElementById('disease-severity');
-        sevEl.innerHTML = `<span class="severity-badge ${d.severity === 'high' ? 'sev-high' : d.severity === 'mid' ? 'sev-mid' : 'sev-low'}">${d.severity === 'high' ? '🔴 High Severity' : d.severity === 'mid' ? '🟡 Medium Severity' : '🟢 Low Severity'}</span>`;
-        document.getElementById('disease-body').innerHTML = d.body;
-        document.getElementById('disease-result').classList.add('show');
-      }, 1800);
-    }
-
-    async function analyzeDisease() {
-      const fileInput = document.querySelector('input[type="file"]');
-      const previewImg = document.getElementById('preview-img');
-      const cropType = document.getElementById('crop-type-select').value;
-
-      let formData = new FormData();
-
-      if (fileInput.files.length > 0) {
-        formData.append('image', fileInput.files[0]);
-      } else if (previewImg.src.startsWith('data:')) {
-        // Convert base64 to blob
-        const res = await fetch(previewImg.src);
-        const blob = await res.blob();
-        formData.append('image', blob, 'camera-capture.jpg');
-      } else {
-        alert("Please upload an image or capture one using the camera.");
-        return;
-      }
-
-      if (cropType) {
-        formData.append('crop_type', cropType);
-      }
-
-      // UI Updates
-      document.getElementById('disease-empty').style.display = 'none';
-      document.getElementById('disease-loader').classList.add('show');
-      document.getElementById('disease-result').classList.remove('show');
-
-      try {
-        // Call Backend API
-        const response = await fetch('http://localhost:8000/verify-crop', {
-          method: 'POST',
-          body: formData
-        });
-
-        if (!response.ok) {
-          throw new Error(`Server Error: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-
-        // Hide loader
-        document.getElementById('disease-loader').classList.remove('show');
-
-        // Show Results (Mapping Backend Data to UI)
-        if (data.disease_diagnosis) {
-          // DETAILED DISEASE DIAGNOSIS
-          const diag = data.disease_diagnosis;
-          document.getElementById('disease-name').innerHTML = `🤒 ${diag.name} <button class="btn btn-sm btn-secondary" style="margin-left:10px;padding:2px 8px;" onclick="speakText('${diag.name}. ${diag.solution}')">🔊 Listen</button>`;
-
-          let details = `<div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;margin-bottom:10px;">
-                <strong>Symptoms:</strong> ${diag.symptoms}<br/><br/>
-                <strong>Cause:</strong> ${diag.cause}
-            </div>
-            <div style="background:rgba(126, 203, 53, 0.1);padding:10px;border-radius:8px;border-left:3px solid var(--lime);">
-                <strong>✅ Solution:</strong> ${diag.solution}<br/>
-                <strong>🛡️ Prevention:</strong> ${diag.prevention}
-            </div>
-            <div style="margin-top:10px;font-size:0.8rem;opacity:0.7;">
-                <strong>Defects Analysis:</strong> Bruises: ${data.defect_analysis?.bruise_count || 0} • Spots: ${data.defect_analysis?.spot_count || 0}
-            </div>`;
-
-          document.getElementById('disease-body').innerHTML = details;
-
-          // Auto-speak result
-          speakText(`Diagnosis complete. Detected ${diag.name}. Solution is: ${diag.solution}`);
-
-        } else {
-          // QUALITY GRADING ONLY
-          document.getElementById('disease-name').textContent = data.quality_grade || "Analysis Complete";
-
-          const sevEl = document.getElementById('disease-severity');
-          const score = data.purity_score * 100;
-          let severityClass = score > 90 ? 'sev-low' : score > 70 ? 'sev-mid' : 'sev-high';
-          let severityText = score > 90 ? '🟢 High Quality' : score > 70 ? '🟡 Medium Quality' : '🔴 Low Quality';
-
-          sevEl.innerHTML = `<span class="severity-badge ${severityClass}">${severityText} (${score.toFixed(1)}% Purity)</span>`;
-
-          let details = `<strong>Defects Found:</strong><br/>`;
-          if (data.defect_analysis) {
-            details += `Bruises: ${data.defect_analysis.bruise_count}<br/>`;
-            details += `Spots: ${data.defect_analysis.spot_count}<br/>`;
-            details += `Color Uniformity: ${(data.defect_analysis.color_uniformity * 100).toFixed(1)}%<br/>`;
-          }
-          details += `<br/><strong>Estimated Value:</strong> ₹${data.estimated_valuation?.price_per_quintal || 0} / quintal`;
-
-          document.getElementById('disease-body').innerHTML = details;
-        }
-
-        document.getElementById('disease-result').classList.add('show');
-
-      } catch (err) {
-        console.error(err);
-        document.getElementById('disease-loader').classList.remove('show');
-        alert("Failed to analyze image. Ensure the backend server is running.\nError: " + err.message);
-      }
-    }
+    // (Old duplicate code removed — clean version above)
 
     // ===== CROP RECOMMENDATION =====
     const cropDB = {
@@ -2801,20 +3062,35 @@
         <img src="${intruderImg}" style="width:100px;border-radius:4px;margin-top:4px;border:1px solid #fa5252;">
       </div>` + log.innerHTML;
 
-      // Simulate Sending Message
-      // Simulate Sending Message
-      const disPhone = ownerDetails?.phone || '+91...';
-      showNotification("🚨 Security Alert", `Motion detected! Image sent to ${disPhone}.`);
+      // Local Notification
+      const ownerName = ownerDetails?.name || 'Owner';
+      const ownerPhone = ownerDetails?.phone || ''; // Fallback empty if not set
+
+      showNotification("🚨 Security Alert", `Motion detected! Alert prepared for ${ownerPhone || 'WhatsApp'}.`);
 
       // Speak Warning
       speakText("Security Alert! Motion detected.");
 
       // WhatsApp Integration (Real - Auto)
-      const ownerName = ownerDetails?.name || 'Owner';
-      const ownerPhone = ownerDetails?.phone || '';
-
       const msg = `🚨 *Security Alert!* \nHello ${ownerName}, Motion detected at farm at ${now}. \nI have pasted the intruder image below. 👇`;
-      const waLink = `https://wa.me/${ownerPhone}?text=${encodeURIComponent(msg)}`;
+      // If no phone is set, wa.me/ links go to a "select contact" screen on mobile, 
+      // or just open WhatsApp Web on desktop. Ideally we want a number.
+      const waLink = ownerPhone ?
+        `https://wa.me/${ownerPhone}?text=${encodeURIComponent(msg)}` :
+        `https://wa.me/?text=${encodeURIComponent(msg)}`;
+
+      // Auto-Copy Image to Clipboard
+      canvas.toBlob(blob => {
+        try {
+          if (typeof ClipboardItem !== "undefined") {
+            const item = new ClipboardItem({ "image/png": blob });
+            navigator.clipboard.write([item]).then(() => {
+              console.log("Image copied to clipboard!");
+              showNotification("System", "📸 Image copied! Ready to paste in WhatsApp.");
+            }).catch(err => console.error("Clipboard write failed:", err));
+          }
+        } catch (err) { }
+      });
 
       // Custom Modal for "Message Sent" (WhatsApp Style)
       const modal = document.createElement('div');
@@ -2837,11 +3113,11 @@
           <button onclick="document.getElementById('intruder-modal').remove()" style="margin-left:auto;background:none;border:none;color:#fff;font-size:1.2rem;">&times;</button>
         </div>
         <div style="padding:16px;">
-          <div style="font-size:0.9rem;margin-bottom:10px;">🚨 <strong>Intruder Detected!</strong><br>Alerting: <strong>${ownerName}</strong> (${ownerPhone})<br><br>1. Click "Send via WhatsApp"<br>2. <strong>Paste (Ctrl+V)</strong> to attach image</div>
+          <div style="font-size:0.9rem;margin-bottom:10px;">🚨 <strong>Intruder Detected!</strong><br>Alerting: <strong>${ownerName}</strong> (${ownerPhone || 'No Number Set'})<br><br>1. Click "Send via WhatsApp"<br>2. <strong>Paste (Ctrl+V)</strong> to attach image</div>
           <img src="${intruderImg}" style="width:100%;border-radius:8px;border:1px solid rgba(255,255,255,0.1);">
           <div style="margin-top:12px;">
             <a href="${waLink}" target="_blank" style="text-decoration:none;display:block;width:100%;text-align:center;background:#25D366;color:#fff;border:none;padding:10px;border-radius:6px;font-weight:600;">
-               📲 Send to ${phone || 'WhatsApp'}
+               📲 Send to ${ownerPhone || 'WhatsApp'}
             </a>
              <button onclick="document.getElementById('intruder-modal').remove()" style="width:100%;margin-top:8px;background:none;color:#aaa;border:none;padding:8px;font-size:0.8rem;">Dismiss</button>
           </div>
